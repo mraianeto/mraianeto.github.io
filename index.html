@@ -25,7 +25,8 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
+            background: url('path/to/your/image.jpg') no-repeat center center;
+            background-size: cover; /* Faz a imagem preencher todo o fundo */
             color: var(--text-color);
             font-family: var(--font-main);
             display: flex;
@@ -60,6 +61,7 @@
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+            margin-top: 2rem; /* Adiciona espaço entre o subtítulo e os botões */
         }
 
         nav a {
