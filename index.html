@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mário Raia Neto, BSc.</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Adicione o caminho para seu favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
         @font-face {
             font-family: 'Futura PT Custom';
@@ -14,7 +14,7 @@
         }
 
         :root {
-            --bg-color: #121212;
+            --bg-color: #000000; /* Solid black background */
             --text-color: #ffffff;
             --button-color: transparent;
             --hover-bg-color: #ffffff;
@@ -34,23 +34,9 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-image: url('https://source.unsplash.com/1600x900/?space,blackhole');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
         }
 
         .content {
-            position: relative;
-            z-index: 1;
             text-align: center;
         }
 
@@ -92,8 +78,7 @@
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
-    <div id="page-P1" class="content active">
+    <div class="content">
         <h1>Mário Raia Neto,</h1>
         <h2>Undergraduate student and aspiring black hole physicist.</h2>
         <nav>
