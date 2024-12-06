@@ -37,7 +37,7 @@
 
         .content {
             text-align: center;
-            padding: 1rem; /* Adicionado para evitar corte em dispositivos menores */
+            padding: 1rem;
         }
 
         h1 {
@@ -94,21 +94,28 @@
             }
 
             nav a {
-                font-size: 0.9rem; /* Reduz o tamanho do texto no menu */
+                font-size: 1rem; /* Tamanho de fonte ajustado */
+                padding: 0.5rem; /* Ajuste de padding */
             }
         }
 
         @media (max-width: 480px) {
             h1 {
-                font-size: 2rem; /* Reduz ainda mais o tamanho do título */
+                font-size: 2rem; /* Reduz o tamanho do título */
             }
 
             h2 {
                 font-size: 1rem; /* Reduz o subtítulo */
             }
 
+            nav {
+                flex-direction: column; /* Alinha os itens do menu em uma coluna */
+                gap: 1rem; /* Aumenta o espaçamento entre os itens */
+            }
+
             nav a {
-                font-size: 0.8rem; /* Ajusta o menu para telas menores */
+                font-size: 1rem; /* Ajusta o tamanho do texto */
+                padding: 0.8rem; /* Ajusta o padding para uma área de clique maior */
             }
 
             nav a:not(:last-child)::after {
