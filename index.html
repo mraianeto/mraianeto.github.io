@@ -16,7 +16,6 @@
         :root {
             --bg-color: #000000; /* Solid black background */
             --text-color: #ffffff;
-            --button-color: transparent;
             --hover-bg-color: #ffffff;
             --hover-text-color: #000000;
             --font-main: 'Futura PT Custom', sans-serif;
@@ -49,7 +48,7 @@
 
         h2 {
             font-size: 1.5rem;
-            margin-bottom: 3rem; /* Ajuste para maior espaçamento */
+            margin-bottom: 2rem; /* Ajuste para maior espaçamento */
             font-family: var(--font-secondary);
             letter-spacing: 1.5px;
         }
@@ -57,7 +56,8 @@
         nav {
             display: flex;
             justify-content: center;
-            gap: 0; /* Remove o espaçamento entre os links */
+            align-items: center;
+            gap: 1rem; /* Espaçamento uniforme */
         }
 
         nav a {
@@ -65,9 +65,9 @@
             color: var(--text-color);
             font-family: var(--font-secondary);
             font-size: 1rem;
-            padding: 0.5rem 1.5rem;
             letter-spacing: 1.2px;
             transition: background-color 0.3s, color 0.3s;
+            padding: 0.3rem; /* Pequeno padding para hover */
         }
 
         nav a:hover {
@@ -75,12 +75,11 @@
             color: var(--hover-text-color);
         }
 
-        /* Adiciona separadores entre os links */
+        /* Adiciona separadores com largura uniforme */
         nav a:not(:last-child)::after {
-            content: '|'; /* Caractere do separador */
-            color: var(--text-color); /* Cor do separador */
+            content: '|';
+            color: var(--text-color);
             margin-left: 1rem;
-            margin-right: 1rem;
         }
     </style>
 </head>
