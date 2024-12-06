@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mário Raia Neto, BSc.</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"> <!-- Adicione o caminho para seu favicon -->
     <style>
         @font-face {
             font-family: 'Futura PT Custom';
@@ -15,7 +16,9 @@
         :root {
             --bg-color: #121212;
             --text-color: #ffffff;
-            --button-color: #444444;
+            --button-color: transparent;
+            --hover-bg-color: #ffffff;
+            --hover-text-color: #000000;
             --font-main: 'Futura PT Custom', sans-serif;
             --font-secondary: 'Futura PT Custom', sans-serif;
         }
@@ -51,31 +54,6 @@
             text-align: center;
         }
 
-        .language-buttons {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .language-buttons button {
-            background-color: var(--button-color);
-            color: var(--text-color);
-            font-family: var(--font-secondary);
-            font-size: 0.9rem;
-            padding: 5px 10px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.3s;
-        }
-
-        .language-buttons button:hover {
-            opacity: 1;
-        }
-
         h1 {
             font-size: 3rem;
             font-family: var(--font-main);
@@ -85,7 +63,7 @@
 
         h2 {
             font-size: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem; /* Ajuste para maior espaçamento */
             font-family: var(--font-secondary);
             letter-spacing: 1.5px;
         }
@@ -99,39 +77,22 @@
         a {
             text-decoration: none;
             color: var(--text-color);
-            background-color: var(--button-color);
             font-family: var(--font-secondary);
             font-size: 1rem;
             padding: 0.5rem 1.5rem;
             border-radius: 5px;
-            transition: background-color 0.3s;
             letter-spacing: 1.2px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         a:hover {
-            background-color: #666666;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .page {
-            display: none;
-            text-align: center;
-        }
-
-        .page.active {
-            display: block;
+            background-color: var(--hover-bg-color);
+            color: var(--hover-text-color);
         }
     </style>
 </head>
 <body>
     <div class="overlay"></div>
-    <div class="language-buttons">
-        <button onclick="translateTo('pt-BR')">PT-BR</button>
-        <button onclick="translateTo('en')">EN</button>
-    </div>
     <div id="page-P1" class="content active">
         <h1>Mário Raia Neto,</h1>
         <h2>Undergraduate student and aspiring black hole physicist.</h2>
@@ -142,12 +103,5 @@
             <a href="contact.html">CONTACT</a>
         </nav>
     </div>
-
-    <script>
-        function translateTo(lang) {
-            // Placeholder function for language translation logic
-            alert(`Translate page to: ${lang}`);
-        }
-    </script>
 </body>
 </html>
