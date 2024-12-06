@@ -14,7 +14,7 @@
         }
 
         :root {
-            --bg-color: #000000; /* Solid black background */
+            --bg-color: #000000;
             --text-color: #ffffff;
             --hover-bg-color: #ffffff;
             --hover-text-color: #000000;
@@ -37,6 +37,7 @@
 
         .content {
             text-align: center;
+            padding: 1rem; /* Adicionado para evitar corte em dispositivos menores */
         }
 
         h1 {
@@ -48,7 +49,7 @@
 
         h2 {
             font-size: 1.5rem;
-            margin-bottom: 2rem; /* Ajuste para maior espaçamento */
+            margin-bottom: 2rem;
             font-family: var(--font-secondary);
             letter-spacing: 1.5px;
         }
@@ -57,7 +58,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 1rem; /* Espaçamento uniforme */
+            gap: 1rem;
+            flex-wrap: wrap; /* Permite quebra de linha em telas menores */
         }
 
         nav a {
@@ -67,7 +69,7 @@
             font-size: 1rem;
             letter-spacing: 1.2px;
             transition: background-color 0.3s, color 0.3s;
-            padding: 0.3rem; /* Pequeno padding para hover */
+            padding: 0.3rem;
         }
 
         nav a:hover {
@@ -75,11 +77,43 @@
             color: var(--hover-text-color);
         }
 
-        /* Adiciona separadores com largura uniforme */
         nav a:not(:last-child)::after {
             content: '|';
             color: var(--text-color);
             margin-left: 1rem;
+        }
+
+        /* Media Queries para responsividade */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem; /* Reduz o tamanho do título */
+            }
+
+            h2 {
+                font-size: 1.2rem; /* Reduz o tamanho do subtítulo */
+            }
+
+            nav a {
+                font-size: 0.9rem; /* Reduz o tamanho do texto no menu */
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem; /* Reduz ainda mais o tamanho do título */
+            }
+
+            h2 {
+                font-size: 1rem; /* Reduz o subtítulo */
+            }
+
+            nav a {
+                font-size: 0.8rem; /* Ajusta o menu para telas menores */
+            }
+
+            nav a:not(:last-child)::after {
+                content: ''; /* Remove o separador em telas muito pequenas */
+            }
         }
     </style>
 </head>
