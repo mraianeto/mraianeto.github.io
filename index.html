@@ -22,34 +22,29 @@
             --font-secondary: 'Futura PT Custom', sans-serif;
         }
 
-    body {
-        margin: 0;
-        padding: 0;
-        background: 
-            linear-gradient(rgba(10, 4, 4, 0.45), rgba(10, 4, 4, 0.45)), /* Gradiente de cor com opacidade */
-            url('eso1907a2.jpg') no-repeat center center; /* Imagem de fundo */
-        background-size: cover; /* Faz a imagem ocupar todo o viewport */
-        background-position: center;
-        background-attachment: fixed; /* Fixa a imagem no scroll */
-        color: var(--text-color);
-        font-family: var(--font-main);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        text-align: center;
-    }
+        body {
+            margin: 0;
+            padding: 0;
+            background: 
+                linear-gradient(rgba(10, 4, 4, 0.45), rgba(10, 4, 4, 0.45)), /* Gradiente de cor com opacidade */
+                url('eso1907a2.jpg') no-repeat center center; /* Imagem de fundo */
+            background-size: cover; /* Faz a imagem ocupar todo o viewport */
+            background-position: center;
+            background-attachment: fixed; /* Fixa a imagem no scroll */
+            color: var(--text-color);
+            font-family: var(--font-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
 
-    .content {
-        text-align: center;
-        padding: 1rem;
-        backdrop-filter: blur(5px); /* Desfoque atrás do conteúdo */
-    }
         .content {
             text-align: center;
             padding: 1rem;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px); /* Desfoque atrás do conteúdo */
         }
 
         h1 {
@@ -66,40 +61,71 @@
             letter-spacing: 1.5px;
         }
 
-nav a {
-    text-decoration: none;
-    color: var(--text-color);
-    font-family: var(--font-secondary);
-    font-size: 1rem;
-    letter-spacing: 1.2px;
-    transition: background-color 0.3s, color 0.3s, padding 0.3s;
-    padding: 0.5rem 1rem; /* Espaçamento uniforme */
-    border: 2px solid transparent; /* Borda inicial transparente */
-    display: inline-block; /* Necessário para alinhamento */
-    text-align: center; /* Centraliza o texto horizontalmente */
-    line-height: 1.5; /* Alinha verticalmente dentro do botão */
-}
+        nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0; /* Remove o gap para evitar inconsistências nos separadores */
+        }
 
-    nav a:not(:last-child)::after {
-        content: '|';
-        color: var(--text-color);
-        margin: 0 0.5rem; /* Espaço igual à esquerda e à direita */
-        vertical-align: middle; /* Alinha verticalmente com o texto */
-    }
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-family: var(--font-secondary);
+            font-size: 1rem;
+            letter-spacing: 1.2px;
+            transition: background-color 0.3s, color 0.3s, padding 0.3s;
+            padding: 0.5rem 1rem; /* Espaçamento uniforme */
+            border: 2px solid transparent; /* Borda inicial transparente */
+            display: inline-block; /* Necessário para alinhamento */
+            text-align: center; /* Centraliza o texto horizontalmente */
+            line-height: 1.5; /* Alinha verticalmente dentro do botão */
+        }
 
-nav a:hover {
-    background-color: var(--hover-bg-color);
-    color: var(--hover-text-color);
-    border: 2px solid var(--hover-bg-color); /* Garante simetria no hover */
-    padding: 0.5rem 1rem; /* Mantém o espaçamento no hover */
-}
+        nav a:not(:last-child)::after {
+            content: '|';
+            color: var(--text-color);
+            margin: 0 0.5rem; /* Espaço igual à esquerda e à direita */
+            vertical-align: middle; /* Alinha verticalmente com o texto */
+        }
 
-    nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 0; /* Remove o gap para evitar inconsistências nos separadores */
-    }
+        nav a:hover {
+            background-color: var(--hover-bg-color);
+            color: var(--hover-text-color);
+            border: 2px solid var(--hover-bg-color); /* Garante simetria no hover */
+            padding: 0.5rem 1rem; /* Mantém o espaçamento no hover */
+        }
+
+        /* Estilo do menu dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--bg-color);
+            min-width: 160px;
+            z-index: 1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: var(--text-color);
+            padding: 1rem;
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--hover-bg-color);
+            color: var(--hover-text-color);
+        }
 
         /* Media Queries para responsividade */
         @media (max-width: 768px) {
@@ -169,7 +195,13 @@ nav a:hover {
         <nav>
             <a href="about.html">ABOUT ME</a>
             <a href="cv.html">CV</a>
-            <a href="publications.html">PUBLICATIONS</a>
+            <div class="dropdown">
+                <a href="publications.html">PUBLICATIONS</a>
+                <div class="dropdown-content">
+                    <a href="papers.html">Papers</a>
+                    <a href="texts.html">Texts</a>
+                </div>
+            </div>
             <a href="contact.html">CONTACT</a>
         </nav>
     </div>
