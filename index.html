@@ -25,10 +25,10 @@
         body {
             margin: 0;
             padding: 0;
-            background: #0a0404 url('eso1907a2.jpg') no-repeat center center; /* Fundo com a nova cor */
-            background-size: contain; /* Ajusta a imagem para caber no viewport */
-            background-position: center center; /* Centraliza a imagem */
-            background-attachment: fixed; /* Mantém o fundo fixo */
+            background: #0a0404 url('eso1907a2.jpg') no-repeat center center;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-color);
             font-family: var(--font-main);
             display: flex;
@@ -36,12 +36,13 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            text-align: center;
         }
 
         .content {
             text-align: center;
             padding: 1rem;
-            backdrop-filter: blur(5px); /* Adiciona um efeito de desfoque no fundo atrás do conteúdo */
+            backdrop-filter: blur(5px);
         }
 
         h1 {
@@ -53,7 +54,7 @@
 
         h2 {
             font-size: 1.5rem;
-            margin-bottom: 3rem; /* Aumenta o espaço entre o subtítulo e os botões */
+            margin-bottom: 2rem;
             font-family: var(--font-secondary);
             letter-spacing: 1.5px;
         }
@@ -63,7 +64,7 @@
             justify-content: center;
             align-items: center;
             gap: 1rem;
-            flex-wrap: wrap; /* Permite quebra de linha em telas menores */
+            flex-wrap: wrap;
         }
 
         nav a {
@@ -72,63 +73,80 @@
             font-family: var(--font-secondary);
             font-size: 1rem;
             letter-spacing: 1.2px;
-            transition: background-color 0.3s, color 0.3s;
-            padding: 0.3rem;
+            transition: background-color 0.3s, color 0.3s, padding 0.3s;
+            padding: 0.5rem 1rem; /* Adiciona espaçamento simétrico ao redor */
+            border: 2px solid transparent; /* Define borda inicial transparente */
         }
 
         nav a:hover {
             background-color: var(--hover-bg-color);
             color: var(--hover-text-color);
+            border: 2px solid var(--hover-bg-color); /* Garante simetria no hover */
         }
 
         nav a:not(:last-child)::after {
             content: '|';
             color: var(--text-color);
-            margin-left: 1rem;
+            margin-left: 0.5rem;
         }
 
         /* Media Queries para responsividade */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem; /* Reduz o tamanho do título */
+                font-size: 2.5rem;
             }
 
             h2 {
-                font-size: 1.2rem; /* Reduz o tamanho do subtítulo */
-                margin-bottom: 2rem; /* Ajusta o espaçamento para telas menores */
+                font-size: 1.2rem;
+                margin-bottom: 1.5rem;
             }
 
             nav a {
-                font-size: 1rem; /* Tamanho de fonte ajustado */
-                padding: 0.5rem; /* Ajuste de padding */
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
             }
         }
 
         @media (max-width: 480px) {
             body {
-                background-attachment: scroll; /* Garante que o fundo se ajuste em dispositivos móveis */
+                background-attachment: scroll;
             }
 
             h1 {
-                font-size: 2rem; /* Reduz o tamanho do título */
+                font-size: 2rem;
             }
 
             h2 {
-                font-size: 1rem; /* Reduz o subtítulo */
+                font-size: 1rem;
             }
 
             nav {
-                flex-direction: column; /* Alinha os itens do menu em uma coluna */
-                gap: 1rem; /* Aumenta o espaçamento entre os itens */
+                flex-direction: column;
+                gap: 0.8rem;
             }
 
             nav a {
-                font-size: 1rem; /* Ajusta o tamanho do texto */
-                padding: 0.8rem; /* Ajusta o padding para uma área de clique maior */
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
             }
 
             nav a:not(:last-child)::after {
-                content: ''; /* Remove o separador em telas muito pequenas */
+                content: ''; /* Remove o separador em telas pequenas */
+            }
+        }
+
+        @media (orientation: landscape) {
+            h1 {
+                font-size: 2.8rem;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            nav a {
+                font-size: 1rem;
+                padding: 0.5rem 1rem;
             }
         }
     </style>
