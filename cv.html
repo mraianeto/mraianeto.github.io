@@ -43,6 +43,8 @@
             text-align: center;
             padding: 1rem;
             backdrop-filter: blur(5px); /* Desfoque atrás do conteúdo */
+            max-width: 80%;
+            margin: 0 auto;
         }
 
         h1 {
@@ -59,6 +61,16 @@
             letter-spacing: 1.5px;
         }
 
+        /* PDF Container */
+        #pdf-viewer {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            overflow: auto;
+        }
+
+        /* Navigation Styles */
         nav a {
             text-decoration: none;
             color: var(--text-color);
@@ -114,7 +126,7 @@
             border: 2px solid var(--hover-bg-color);
         }
 
-        /* Media Queries para responsividade */
+        /* Media Queries for responsiveness */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -155,7 +167,7 @@
             }
 
             nav a:not(:last-child)::after {
-                content: ''; /* Remove o separador em telas pequenas */
+                content: ''; /* Remove the separator on small screens */
             }
         }
 
@@ -179,7 +191,44 @@
     <a href="index.html" class="home-button">Home</a>
     <div class="content">
         <h1>Curriculum Vitae</h1>
-        <h2></h2>
+        <div id="pdf-viewer"></div>
     </div>
+
+    <!-- Include PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    
+    <script>
+        // Path to your PDF file inside the folder (e.g., 'folder/filename.pdf')
+        const pdfUrl = 'cv.pdf'; // Update this path to your PDF file
+        
+        // PDF.js initialization and rendering function
+        const pdfViewer = document.getElementById('pdf-viewer');
+        
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            console.log("PDF loaded");
+
+            // Fetch the first page of the PDF
+            pdf.getPage(1).then(function(page) {
+                console.log("Page loaded");
+                
+                // Set up the canvas for rendering the PDF page
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                pdfViewer.appendChild(canvas);
+
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Render the page on the canvas
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+            });
+        }, function(error) {
+            console.error("Error loading PDF: " + error);
+        });
+    </script>
 </body>
 </html>
