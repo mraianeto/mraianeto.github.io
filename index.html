@@ -26,7 +26,8 @@
             margin: 0;
             padding: 0;
             background: url('eso1907a.jpg') no-repeat center center;
-            background-size: cover; /* Mantém a proporção da imagem */
+            background-size: contain; /* Ajusta a imagem para caber no viewport */
+            background-position: center center; /* Garante que a parte alaranjada fique no centro */
             background-attachment: fixed; /* Garante que o fundo permaneça fixo */
             background-blend-mode: overlay; /* Combina a imagem com a cor de fundo */
             background-color: var(--bg-color); /* Controla a opacidade da imagem de fundo */
@@ -54,7 +55,7 @@
 
         h2 {
             font-size: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem; /* Aumenta o espaço entre o subtítulo e os botões */
             font-family: var(--font-secondary);
             letter-spacing: 1.5px;
         }
@@ -65,7 +66,6 @@
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap; /* Permite quebra de linha em telas menores */
-            margin-top: 2rem; /* Adiciona espaço entre o subtítulo e os botões */
         }
 
         nav a {
@@ -97,6 +97,7 @@
 
             h2 {
                 font-size: 1.2rem; /* Reduz o tamanho do subtítulo */
+                margin-bottom: 2rem; /* Ajusta o espaçamento para telas menores */
             }
 
             nav a {
