@@ -22,23 +22,30 @@
             --font-secondary: 'Futura PT Custom', sans-serif;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0a0404 url('eso1907a2.jpg') no-repeat center center;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-color);
-            font-family: var(--font-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-        }
+    body {
+        margin: 0;
+        padding: 0;
+        background: 
+            linear-gradient(rgba(10, 4, 4, 0.1), rgba(10, 4, 4, 0.1)), /* Gradiente de cor com opacidade */
+            url('eso1907a2.jpg') no-repeat center center; /* Imagem de fundo */
+        background-size: cover; /* Faz a imagem ocupar todo o viewport */
+        background-position: center;
+        background-attachment: fixed; /* Fixa a imagem no scroll */
+        color: var(--text-color);
+        font-family: var(--font-main);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+    }
 
+    .content {
+        text-align: center;
+        padding: 1rem;
+        backdrop-filter: blur(5px); /* Desfoque atrás do conteúdo */
+    }
         .content {
             text-align: center;
             padding: 1rem;
