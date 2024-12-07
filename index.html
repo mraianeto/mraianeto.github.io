@@ -14,7 +14,7 @@
         }
 
         :root {
-            --bg-color: #000000;
+            --bg-color: rgba(0, 0, 0, 0.5); /* Opacidade da imagem de fundo */
             --text-color: #ffffff;
             --hover-bg-color: #ffffff;
             --hover-text-color: #000000;
@@ -26,7 +26,10 @@
             margin: 0;
             padding: 0;
             background: url('eso1907a.jpg') no-repeat center center;
-            background-size: cover; /* Faz a imagem preencher todo o fundo */
+            background-size: cover; /* Mantém a proporção da imagem */
+            background-attachment: fixed; /* Garante que o fundo permaneça fixo */
+            background-blend-mode: overlay; /* Combina a imagem com a cor de fundo */
+            background-color: var(--bg-color); /* Controla a opacidade da imagem de fundo */
             color: var(--text-color);
             font-family: var(--font-main);
             display: flex;
@@ -39,6 +42,7 @@
         .content {
             text-align: center;
             padding: 1rem;
+            backdrop-filter: blur(5px); /* Adiciona um efeito de desfoque no fundo atrás do conteúdo */
         }
 
         h1 {
@@ -61,7 +65,7 @@
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap; /* Permite quebra de linha em telas menores */
-            margin-top: 5rem; /* Adiciona espaço entre o subtítulo e os botões */
+            margin-top: 2rem; /* Adiciona espaço entre o subtítulo e os botões */
         }
 
         nav a {
@@ -102,6 +106,10 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                background-attachment: scroll; /* Garante que o fundo se ajuste em dispositivos móveis */
+            }
+
             h1 {
                 font-size: 2rem; /* Reduz o tamanho do título */
             }
