@@ -64,13 +64,44 @@
         /* PDF Container */
         #pdf-viewer {
             width: 100%;
-            height: 80vh;
+            height: auto;
             border: 1px solid #ccc;
             background-color: #fff;
             overflow: auto;
+            padding: 1rem;
         }
 
-        /* Navigation Styles */
+        .page-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .page {
+            border: 1px solid #ccc;
+            margin: 10px;
+        }
+
+        /* Download Button */
+        .download-btn {
+            background-color: var(--hover-bg-color);
+            color: var(--hover-text-color);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--hover-bg-color);
+            display: inline-block;
+            margin-top: 1rem;
+            transition: background-color 0.3s, color 0.3s, border 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: var(--text-color);
+            color: var(--text-color);
+            border: 2px solid var(--text-color);
+        }
+
         nav a {
             text-decoration: none;
             color: var(--text-color);
@@ -126,65 +157,6 @@
             border: 2px solid var(--hover-bg-color);
         }
 
-        /* Media Queries for responsiveness */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            h2 {
-                font-size: 1.2rem;
-                margin-bottom: 1.5rem;
-            }
-
-            nav a {
-                font-size: 0.9rem;
-                padding: 0.4rem 0.8rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                background-attachment: scroll;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1rem;
-            }
-
-            nav {
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-
-            nav a {
-                font-size: 1rem;
-                padding: 0.6rem 1rem;
-            }
-
-            nav a:not(:last-child)::after {
-                content: ''; /* Remove the separator on small screens */
-            }
-        }
-
-        @media (orientation: landscape) {
-            h1 {
-                font-size: 2.8rem;
-            }
-
-            h2 {
-                font-size: 1.3rem;
-            }
-
-            nav a {
-                font-size: 1rem;
-                padding: 0.5rem 1rem;
-            }
-        }
     </style>
 </head>
 <body>
@@ -192,6 +164,7 @@
     <div class="content">
         <h1>Curriculum Vitae</h1>
         <div id="pdf-viewer"></div>
+        <a href="cv.pdf" class="download-btn" download>Download CV</a>
     </div>
 
     <!-- Include PDF.js Library -->
@@ -199,33 +172,39 @@
     
     <script>
         // Path to your PDF file inside the folder (e.g., 'folder/filename.pdf')
-        const pdfUrl = 'cv.pdf'; // Update this path to your PDF file
+        const pdfUrl = './folder/your-pdf-file.pdf'; // Update this path to your PDF file
         
         // PDF.js initialization and rendering function
         const pdfViewer = document.getElementById('pdf-viewer');
-        
+
         pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
             console.log("PDF loaded");
 
-            // Fetch the first page of the PDF
-            pdf.getPage(1).then(function(page) {
-                console.log("Page loaded");
-                
-                // Set up the canvas for rendering the PDF page
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                pdfViewer.appendChild(canvas);
+            // Function to render each page
+            const renderPage = function(pageNum) {
+                pdf.getPage(pageNum).then(function(page) {
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    const viewport = page.getViewport({ scale: 1.5 });
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
 
-                const viewport = page.getViewport({ scale: 1.5 });
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+                    const pageContainer = document.createElement('div');
+                    pageContainer.classList.add('page-container');
+                    pageContainer.appendChild(canvas);
+                    pdfViewer.appendChild(pageContainer);
 
-                // Render the page on the canvas
-                page.render({
-                    canvasContext: context,
-                    viewport: viewport
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
                 });
-            });
+            };
+
+            // Render all pages
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                renderPage(pageNum);
+            }
         }, function(error) {
             console.error("Error loading PDF: " + error);
         });
