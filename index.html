@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seu Nome | al-folio HTML</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("theme-toggle");
+  const hamburger = document.getElementById("hamburger");
+  const menu = document.getElementById("page-links");
+
+  const currentTheme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", currentTheme);
+  toggleBtn.textContent = currentTheme === "light" ? "☀️" : "🌙";
+
+  toggleBtn.addEventListener("click", () => {
+    const newTheme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    toggleBtn.textContent = newTheme === "dark" ? "☀️" : "🌙";
+  });
+
+  if (hamburger && menu) {
+    hamburger.addEventListener("click", () => {
+      menu.classList.toggle("show");
+      hamburger.textContent = menu.classList.contains("show") ? "✖" : "☰";
+    });
+  }
+});
+</script>
+
+<body>
+<header class="navbar">
+  <div class="navbar-brand"><strong></strong></div>
+
+  <button class="hamburger" id="hamburger">☰</button>
+
+  <nav class="page-links" id="page-links">
+    <a href="index.html">sobre</a>
+    <a href="publications.html">publicações</a>
+    <a href="projects.html">projetos</a>
+    <a href="cv.html">currículo</a>
+    <button id="theme-toggle">🌙</button> <!-- DEVE estar AQUI sim -->
+  </nav>
+</header>
+
+  <main class="container">
+    <section class="profile">
+      <div class="bio">
+        <h1><strong>Mário</strong> Raia Neto</h1>
+        <p><a href="#">Afiliações</a>. Endereço. Contato. Etc.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut fermentum leo, nec laoreet sapien.
+          Mauris tincidunt libero in nisi eleifend, sed faucibus odio dictum. Nam lobortis ultrices mattis.
+          Integer nec lorem ac felis fermentum pharetra a sed nisl. Suspendisse potenti.</p>
+        <p>Morbi et tincidunt sapien, eget sodales turpis. Nulla facilisi. Vestibulum ac neque ac libero posuere
+          convallis.
+          Fusce eget eros nec metus vulputate sodales. Curabitur nec magna in augue accumsan dignissim nec vel eros.</p>
+      </div>
+      <div class="avatar">
+        <img src="assets/raiaSite.PNG" alt="Foto de perfil">
+        <address>
+          555 seu número<br />
+          sua rua, 123<br />
+          Sua Cidade, Estado 12345
+        </address>
+      </div>
+    </section>
+
+    <section class="news">
+      <h2>news</h2>
+      <ul>
+        <li><strong>Dec 04, 2024</strong>  <a href="#">a post with image galleries</a></li>
+        <li><strong>May 14, 2024</strong>  <a href="#">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</a>
+        </li>
+        <li><strong>May 01, 2024</strong>  <a href="#">a post with tabs</a></li>
+      </ul>
+    </section>
+    
+    <section class="latest-posts">
+      <h2>latest posts</h2>
+      <ul>
+        <li><strong>Dec 04, 2024</strong>  <a href="#">a post with image galleries</a></li>
+        <li><strong>May 14, 2024</strong>  <a href="#">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</a>
+        </li>
+        <li><strong>May 01, 2024</strong>  <a href="#">a post with tabs</a></li>
+      </ul>
+    </section>
+
+    <section class="featured-publications">
+      <h2>selected publications</h2>
+      <div class="pub-entry">
+        <div class="pub-meta">
+          
+
+   <div class="pub-entry">
+      <div class="pub-thumbnail">
+        <img src="assets/themb1.PNG" alt="Thumbnail 2">
+      </div>
+      <div class="pub-meta" style="flex: 1;">
+        <h3>The Shadow of Charged Traversable Wormholes</h3>
+        <p>Mário Raia Neto, Daniela Pérez and Joaquin Pelle</p>
+        <p class="pub-year"><em>International Journal of Modern Physics D</em>, Jan 2023</p>
+        <div class="pub-buttons">
+            <a href="https://worldscientific.com/doi/abs/10.1142/S0218271822501371" target="_blank" class="pub-btn">DOI</a>
+            <a href="https://arxiv.org/abs/2210.14106" target="_blank" class="pub-btn">ARXIV</a>
+            <a href="pdf-viewer.html?file=assets/ctwh.pdf" target="_blank" class="pub-btn">PDF</a>
+        </div>
+      </div>
+      <div style="min-width: 60px; text-align: right; font-size: 1.5rem; color: #667;"></div>
+    </div>
+
+             <!--  <div class="pub-impact">
+                <span style="background:#f4f4f4;color:#111;">Altmetric</span>
+                <span style="background:#fff;color:#000;">859</span>
+                <span style="background:#f4f4f4;color:#111;">Citations</span>
+                <span style="background:#fff;color:#000;">13k</span>
+                <span style="background:#0077cc;color:#fff;">scholar 26K</span>
+                <span style="background:#4c6ef5;color:#fff;">inspire 4.1K</span>
+              </div> -->
+
+             <!-- <div class="pub-icons">
+                <span>Altmetric</span>
+                <span>Citations 13k</span>
+                <span>scholar 26K</span>
+                <span>INSPIRE 4.1K</span>
+              </div> -->
+            </div>
+          </div>
+
+          <hr style="margin-bottom: 2rem; border-color: #444;" />
+
+<div class="social-icons">
+  <a href="mailto:mraianeto@gmail.com" target="_blank">
+    <img src="assets/gmailtrans.PNG" alt="Gmail" class="icon-gmail" />
+  </a>
+  <a href="https://orcid.org/0000-0002-6297-6549" target="_blank">
+    <img src="assets/orcidtrans.PNG" alt="ORCID" class="icon-orcid" />
+  </a>
+  <a href="https://scholar.google.com/citations?user=pOe63igAAAAJ&hl=pt-BR" target="_blank">
+    <img src="assets/gscholtrans.PNG" alt="gschol" class="icon-gschol" />
+  </a>
+  <a href="https://www.instagram.com/mraianeto/" target="_blank">
+    <img src="assets/igtrans.png" alt="Instagram" class="icon-instagram" />
+  </a>
+</div>
+<p class="contact-note">Você pode entrar em contato por email ou pelas redes sociais acima.</p>
+    </section>
+  </main>
+</body>
+
+</html>
