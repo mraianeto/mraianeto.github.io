@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mário Raia Neto | Home</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/theme-toggle.js" defer></script>
+</head>
+<body>
+  <header class="navbar-wrapper">
+    <div class="navbar">
+      <a href="index.html" class="navbar-brand"></a>
+      <button class="hamburger" id="hamburger">☰</button>
+      <nav class="page-links" id="page-links">
+        <a href="index.html" class="active">sobre</a>
+        <a href="publications.html">publicações</a>
+        <a href="projects.html">projetos</a>
+        <a href="cv.html">currículo</a>
+        <button id="theme-toggle">🌙</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="profile">
+      <div class="bio">
+        <h1>Mário Raia Neto</h1>
+        <p><em><a href="#">Afiliações</a>. Endereço. Contato. Etc.</em></p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ut fermentum leo, nec laoreet sapien.
+          Mauris tincidunt libero in nisi eleifend, sed faucibus odio dictum. Nam lobortis ultrices mattis.</p>
+        <p>Morbi et tincidunt sapien, eget sodales turpis. Nulla facilisi. Vestibulum ac neque ac libero posuere
+          convallis. Fusce eget eros nec metus vulputate sodales.</p>
+      </div>
+      <div class="avatar">
+        <img src="assets/raiaSite.png" alt="Foto de Mário Raia Neto">
+      </div>
+    </section>
+
+    <section class="news">
+      <h2>Últimas Notícias</h2>
+      <ul>
+        <li><span class="news-date">Jun 10, 2025</span><a href="#">a post with image galleries</a></li>
+        <li><span class="news-date">May 14, 2025</span><a href="#">Google Gemini updates: Flash 1.5, Gemma 2 and Project Astra</a></li>
+      </ul>
+    </section>
+
+    <section class="latest-posts">
+      <h2>Latest posts</h2>
+      <ul>
+        <li><span class="news-date">Apr 20, 2025</span><a href="#">My thoughts on recent discoveries</a></li>
+        <li><span class="news-date">Mar 11, 2025</span><a href="#">A deep dive into project methodology</a></li>
+      </ul>
+    </section>
+    
+    <section class="featured-publications">
+      <h2>Publicações Selecionadas</h2>
+      <div class="publication-item">
+        <div class="pub-entry">
+          <div class="pub-thumbnail">
+            <img src="assets/themb1.PNG" alt="Thumbnail da publicação">
+          </div>
+          <div class="pub-meta">
+            <h3>The Shadow of Charged Traversable Wormholes</h3>
+            <p class="pub-authors">Mário Raia Neto, Daniela Pérez and Joaquin Pelle</p>
+            <p class="pub-journal"><em>International Journal of Modern Physics D</em>, Jan 2023</p>
+            <div class="pub-buttons">
+              <button class="pub-btn" data-target="abs-destaque">ABS</button>
+              <button class="pub-btn" data-target="bib-destaque">BIB</button>
+              <a href="#" target="_blank" class="pub-btn">DOI</a>
+              <a href="#" target="_blank" class="pub-btn">arXiv</a>
+              <a href="#" target="_blank" class="pub-btn">PDF</a>
+            </div>
+          </div>
+        </div>
+        <div id="abs-destaque" class="hidden-box abstract-box"><p>Abstract...</p></div>
+        <div id="bib-destaque" class="hidden-box bib-box"><pre><code>BibTeX...</code></pre></div>
+      </div>
+    </section>
+  </main>
+  <div class="overlay"></div>
+</body>
+</html>
