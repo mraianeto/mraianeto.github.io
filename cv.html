@@ -1,12 +1,228 @@
 <!DOCTYPE html>
-<html lang="pt-br" data-theme="dark">
-  
+<html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Currículo | Mário Raia Neto</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="js/theme-toggle.js" defer></script>
+  <title>CV | Mário Raia Neto</title>
+  <!-- Using a CDN for PDF.js -->
+  <script src="https://mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+
+  <!-- Original and new styles -->
+  <style>
+    /* Original Styles from css/style.css for Navbar */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #333333;
+      --navbar-bg: rgba(255, 255, 255, 0.8);
+      --hamburger-color: #333;
+      --link-hover-color: #007bff;
+      --button-bg: #333;
+      --button-text: #fff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --navbar-bg: rgba(26, 26, 26, 0.85);
+      --hamburger-color: #e0e0e0;
+      --link-hover-color: #58a6ff;
+      --button-bg: #e0e0e0;
+      --button-text: #1a1a1a;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding-top: 80px; /* Space for fixed navbar */
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .navbar-wrapper {
+      background-color: var(--navbar-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+    }
+
+    .navbar-brand {
+      font-size: 1.5rem;
+      text-decoration: none;
+      color: var(--text-color);
+    }
+
+    .page-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .page-links a {
+      text-decoration: none;
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: color 0.2s;
+    }
+
+    .page-links a:hover {
+      color: var(--link-hover-color);
+    }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+
+    .hamburger {
+      display: none;
+      font-size: 2rem;
+      background: none;
+      border: none;
+      color: var(--hamburger-color);
+      cursor: pointer;
+    }
+
+    /* Responsive styles for navbar */
+    @media (max-width: 768px) {
+      .page-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--navbar-bg);
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        padding: 1rem 0;
+      }
+
+      .page-links.active {
+        display: flex;
+      }
+      
+      .page-links a {
+        text-align: center;
+        padding: 0.5rem 0;
+      }
+      
+      .hamburger {
+        display: block;
+      }
+    }
+
+
+    /* New Styles for PDF Viewer */
+    .pdf-viewer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: calc(100vh - 80px); /* Full height minus navbar */
+      overflow: hidden;
+      background-color: var(--bg-color);
+    }
+    
+    .pdf-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 0.75rem;
+      background-color: var(--navbar-bg);
+      width: 100%;
+      border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 500;
+    }
+    
+    /* Smaller buttons */
+    .pdf-controls button, .pdf-controls a {
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      border: 1px solid transparent;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s, transform 0.2s;
+      text-decoration: none;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+    }
+    
+    .pdf-controls span {
+       color: var(--text-color);
+    }
+
+    .pdf-controls button:hover, .pdf-controls a:hover {
+      transform: translateY(-2px);
+      background-color: var(--link-hover-color);
+      color: var(--bg-color);
+    }
+    
+    .pdf-controls button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+      transform: none;
+    }
+
+    #pdf-render-area {
+      flex-grow: 1;
+      overflow-y: auto; /* Enable vertical scrolling */
+      width: 100%;
+      text-align: center; /* Center the canvases */
+      padding: 1rem 0;
+    }
+
+    /* Styling for each page's canvas */
+    #pdf-render-area canvas {
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 1rem; /* Space between pages */
+    }
+    
+    .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+    .loader {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+  </style>
 </head>
 
 <body>
@@ -16,96 +232,151 @@
       <button class="hamburger" id="hamburger">☰</button>
       <nav class="page-links" id="page-links">
         <a href="index.html">sobre</a>
-        <a href="publications.html">publicações</a> <a href="projects.html">projetos</a>
+        <a href="publications.html">publicações</a>
         <a href="cv.html">currículo</a>
         <button id="theme-toggle">🌙</button>
       </nav>
     </div>
   </header>
 
-  <div class="cv-container">
-    <aside class="cv-sidebar">
-      <nav>
-        <ul>
-          <li><a href="#general" class="active">General</a></li>
-          <li><a href="#employment">Employment</a></li>
-          <li><a href="#education">Education</a></li>
-          <li><a href="#fellowships">Fellowships</a></li>
-          <li><a href="#honors">Honors and Awards</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#languages">Languages</a></li>
-        </ul>
-      </nav>
-    </aside>
-
-    <main class="cv-content">
-      <div class="cv-header">
-        <p>Find my full CV within the webpage's document.</p>
-        <a href="assets/cv.pdf" class="pdf-download-button" target="_blank" title="Baixar PDF">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="currentColor" width="20px" height="20px"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM216 232V334.1l31-31c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-72 72c-9.4 9.4-24.6 9.4-33.9 0l-72-72c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l31 31V232c0-13.3 10.7-24 24-24s24 10.7 24 24z"/></svg>
-          <span>PDF</span>
-        </a>
-      </div>
-
-      <section id="general" class="cv-section-card">
-        <h2>General</h2>
-        <div class="cv-entry">
-          <span class="entry-label">Full Name</span>
-          <span class="entry-value">Mário Raia Neto</span>
-        </div>
-        <div class="cv-entry">
-          <span class="entry-label">Email</span>
-          <span class="entry-value"><a href="mailto:mraianeto@gmail.com">mraianeto@gmail.com</a></span>
-        </div>
-        <div class="cv-entry links-entry">
-          <span class="entry-label">Links</span>
-          <span class="entry-value">
-            <a href="#" class="cv-link-btn">MPI</a>
-            <a href="#" class="cv-link-btn">GITHUB</a>
-            <a href="#" class="cv-link-btn">SCHOLAR</a>
-            <a href="#" class="cv-link-btn">X</a>
-          </span>
-        </div>
-      </section>
-
-      <section id="employment" class="cv-section-card">
-        <h2>Employment</h2>
-        <div class="cv-item">
-          <div class="item-date">2024 - PRESENT</div>
-          <div class="item-details">
-            <h3>xxxx</h3>
-            <p><span>📍</span> xxxxx</p>
-            <p><span>🏛️</span> xxxxxx</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="education" class="cv-section-card">
-        <h2>Education</h2>
-        <div class="cv-item">
-          <div class="item-date">2019 - 2024</div>
-          <div class="item-details">
-            <h3>xxxxx</h3>
-            <p><span>📍</span> xxxxx</p>
-            <p><span>🏛️</span> xxxxxx</p>
-          </div>
-        </div>
-        <div class="cv-item">
-          <div class="item-date">2014 - 2019</div>
-          <div class="item-details">
-            <h3>xxxxxx</h3>
-            <p><span>📍</span> xxxxxx</p>
-            <p><span>🏛️</span> xxxxxx</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="fellowships" class="cv-section-card"><h2>Fellowships</h2><p>Conteúdo sobre bolsas...</p></section>
-      <section id="honors" class="cv-section-card"><h2>Honors and Awards</h2><p>Conteúdo sobre prêmios...</p></section>
-      <section id="skills" class="cv-section-card"><h2>Skills</h2><p>Conteúdo sobre habilidades...</p></section>
-      <section id="languages" class="cv-section-card"><h2>Languages</h2><p>Conteúdo sobre idiomas...</p></section>
-
-    </main>
+  <!-- PDF Viewer -->
+  <main class="pdf-viewer-container">
+    <div class="pdf-controls">
+      <button id="zoom-out">-</button>
+      <span>Zoom</span>
+      <button id="zoom-in">+</button>
+      <a id="download-btn" href="#" download="cv.pdf">Download</a>
+    </div>
+    <div id="pdf-render-area">
+      <div class="loader-container"><div class="loader"></div></div>
+    </div>
+  </main>
+  
   <div class="overlay"></div>
+
+  <script type="module">
+    // --- Navbar and Theme Toggle Logic ---
+    const themeToggleButton = document.getElementById('theme-toggle');
+    const hamburgerButton = document.getElementById('hamburger');
+    const pageLinks = document.getElementById('page-links');
+
+    const applyTheme = (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggleButton.textContent = theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', theme);
+    };
+
+    themeToggleButton.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+    });
+
+    hamburgerButton.addEventListener('click', () => {
+      pageLinks.classList.toggle('active');
+    });
+
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme) {
+      applyTheme(savedTheme);
+    } else {
+      applyTheme(prefersDark ? 'dark' : 'light');
+    }
+    
+    // --- PDF Viewer Logic for Continuous Scrolling ---
+    const url = 'https://raw.githubusercontent.com/mraianeto/mraianeto.github.io/main/assets/cv.pdf';
+    let pdfDoc = null;
+    let isInitialRender = true;
+    window.currentScale = 1.0; // Default scale
+
+    const renderArea = document.getElementById('pdf-render-area');
+    const loader = document.querySelector('.loader-container');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const downloadBtn = document.getElementById('download-btn');
+
+    // Set the href for the download button
+    downloadBtn.href = url;
+
+    const { pdfjsLib } = globalThis;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://mozilla.github.io/pdf.js/build/pdf.worker.mjs`;
+
+    // Renders a single page onto a given canvas
+    const renderPage = (pageNumber, canvas) => {
+        return pdfDoc.getPage(pageNumber).then(page => {
+            const viewport = page.getViewport({ scale: 1 });
+            // Set an initial scale based on container width on first render
+            if (isInitialRender) {
+                 const renderAreaWidth = renderArea.clientWidth;
+                 const dynamicScale = (renderAreaWidth / viewport.width) * 0.95;
+                 window.currentScale = dynamicScale;
+            }
+            
+            const scaledViewport = page.getViewport({ scale: window.currentScale });
+            const ctx = canvas.getContext('2d');
+            canvas.height = scaledViewport.height;
+            canvas.width = scaledViewport.width;
+
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: scaledViewport
+            };
+            return page.render(renderContext).promise;
+        });
+    };
+
+    // Renders all pages sequentially for continuous scrolling
+    const renderAllPages = async () => {
+        // Clear previous canvases if it's a re-render (e.g., on zoom)
+        if (!isInitialRender) {
+             renderArea.innerHTML = '';
+             // Re-add loader for re-render
+             renderArea.appendChild(loader);
+             if(loader) loader.style.display = 'flex';
+        }
+
+        const numPages = pdfDoc.numPages;
+        const pageRenderPromises = [];
+
+        for (let i = 1; i <= numPages; i++) {
+            const canvas = document.createElement('canvas');
+            canvas.id = `pdf-canvas-${i}`;
+            renderArea.appendChild(canvas);
+            pageRenderPromises.push(renderPage(i, canvas));
+        }
+
+        // Wait for all pages to finish rendering
+        await Promise.all(pageRenderPromises);
+        
+        if(loader) loader.style.display = 'none';
+        isInitialRender = false; // Subsequent renders are not initial
+    };
+
+
+    // Handles zoom functionality
+    const onZoom = (newScale) => {
+        if (newScale < 0.2) return; // Set a minimum zoom level
+        window.currentScale = newScale;
+        renderAllPages(); // Re-render all pages with the new scale
+    };
+    
+    zoomInBtn.addEventListener('click', () => onZoom(window.currentScale + 0.15));
+    zoomOutBtn.addEventListener('click', () => onZoom(window.currentScale - 0.15));
+
+
+    // Load the PDF Document
+    pdfjsLib.getDocument(url).promise.then(pdfDoc_ => {
+        pdfDoc = pdfDoc_;
+        renderAllPages();
+    }).catch(err => {
+        // Display error
+        console.error('Error loading PDF:', err);
+        if(loader) loader.style.display = 'none';
+        renderArea.innerHTML = `<p style="color: red; text-align: center; padding: 2rem;">Error: Could not load the PDF file. Please ensure the path is correct and accessible. Details: ${err.message}</p>`;
+    });
+
+  </script>
 </body>
+
 </html>
