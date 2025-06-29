@@ -1,4 +1,14 @@
 /* ==================================
+  FONTES PERSONALIZADAS
+  ================================== */
+.profile .bio h1 { 
+    font-family: 'K22 Gadget', sans-serif; /* APLICA A FONTE PERSONALIZADA */
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    margin-top: 0; 
+}
+
+/* ==================================
   CONFIGURAÇÕES GLOBAIS E TEMA
   ================================== */
 :root {
