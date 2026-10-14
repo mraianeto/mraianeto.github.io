@@ -29,15 +29,11 @@
   const EPS_HORIZON = 1e-3; // (r_stop − r₊)/M  [epsilonHorizonte]
 
   // Default timelike orbit: bound, 5 M ≤ r ≤ 12 M at a = 0.9 (R(5) = R(12) = 0).
-  const MINO_LENGTH = 20; // M |λ_lim|, the Mino-time length of an integration [lambdaMaximo]
+  const MINO_LENGTH = 20; // M λ_lim, the Mino-time length of an integration [lambdaMaximo]
 
-  // tab: "constants" (E, L or b) or "initial" (position & momentum); direction: +1 forward,
-  // −1 backward in Mino time. Angles th0, ph0 are in degrees. The default "initial" data
-  // (at rest radially at r = 12 M with p_φ = 3.012) is the same bound orbit as the E, L tab.
-  const state = {
-    mode: "timelike", tab: "constants", direction: 1, a: 0.9, b: 3.0, E: 0.9442, L: 3.012,
-    t0: 0, r0: 12, th0: 90, ph0: 0, pr: 0, pth: 0, pph: 3.012, zoom: 5,
-  };
+  // Initial point (t0, r0, φ0 in degrees) on the equator; the particle starts there moving
+  // inward with the chosen E, L (or b). The default bound orbit runs between 5 M and 12 M.
+  const state = { mode: "timelike", a: 0.9, b: 3.0, E: 0.9442, L: 3.012, t0: 0, r0: 8, ph0: 0, zoom: 5 };
 
   // ------------------------------------------------------------ physics
 
@@ -369,78 +365,49 @@
 
   // ---------------------------------------- the widget's geodesic
 
-  // Initial event and covector from the "E, L" tab: photons/particles arriving from the right
-  // (start at r = startRadius) or, for bound orbits, starting at rest radially at apoapsis.
-  function initialFromConstants(s, startRadius, M, a, type) {
-    const E = s.mode === "null" ? 1 : s.E;
-    const L = s.mode === "null" ? s.b : s.L;
-    const mu2 = normalization(type);
-    const rPlus = horizonRadius(M, a);
-    const R = (r) => radialPotential(r, M, a, E, L, 0, mu2);
-    const th0 = Math.PI / 2;
-    const bound = mu2 === 1 && E < 1;
-    let r0;
-    let pr;
-    if (bound) {
-      r0 = outerTurningPoint(R, rPlus, E);
-      if (r0 === null) return { error: "forbidden" };
-      pr = 0;
-    } else {
-      r0 = startRadius;
-      if (R(r0) < 0) return { error: "far" };
-      // Ingoing p_r from the mass shell: g^{rr} p_r² = −μ² − (g^{tt}E² − 2g^{tφ}EL + g^{φφ}L²).
-      const g = inverseMetric(r0, th0, M, a);
-      const rest = mu2 + g[0][0] * E * E - 2 * g[0][3] * E * L + g[3][3] * L * L;
-      pr = -Math.sqrt(Math.max(0, -rest / g[1][1]));
-    }
-    // criarCovetor recovers p_t = −E as the future-directed root; keep the slider's E if the
-    // start lies in the ergoregion, where two future-directed roots can exist.
-    let p0 = createCovector(type, pr, 0, L, r0, th0, M, a);
-    if (!p0 || Math.abs(p0[0] + E) > 1e-8 * Math.max(1, E)) p0 = [-E, pr, 0, L];
-    // Start so that the initial velocity points along −x (horizontal, leftwards).
-    let phi0 = 0;
-    if (!bound) {
-      const up = raise(inverseMetric(r0, th0, M, a), p0);
-      phi0 = Math.atan2(r0 * up[3], -up[1]);
-    }
-    return { event: [0, r0, th0, phi0], p0, showStart: bound };
-  }
-
-  // Initial event and covector from the "position & momentum" tab: x^μ = (t, r, θ, φ) and the
-  // spatial components (p_r, p_θ, p_φ); p_t follows from the mass shell, as in the notebook.
-  function initialFromPositionMomentum(s, M, a, type) {
-    const th0 = (s.th0 * Math.PI) / 180;
-    const ph0 = (s.ph0 * Math.PI) / 180;
-    if (s.r0 <= horizonRadius(M, a) + EPS_HORIZON * M) return { error: "inside" };
-    const p0 = createCovector(type, s.pr, s.pth, s.pph, s.r0, th0, M, a);
-    if (!p0) return { error: "noroot" };
-    return { event: [s.t0, s.r0, th0, ph0], p0, showStart: true };
-  }
-
-  // Integrates the widget's geodesic forward or backward in Mino time and classifies it like
-  // verificarPorIntegracao: Horizonte; Infinito when no turning point lies beyond; else Ligada.
-  function geodesic(s, startRadius) {
+  // Integrates the widget's geodesic forward in Mino time from the initial event
+  // (t0, r0, θ = π/2, φ0) with the chosen E and L, starting inward (p_r ≤ 0), and classifies it
+  // like verificarPorIntegracao: Horizonte; Infinito when no turning point lies beyond; else Ligada.
+  function geodesic(s) {
     const M = 1;
     const a = s.a;
     const type = s.mode === "null" ? "null" : "timelike";
     const mu2 = normalization(type);
-    const init = s.tab === "initial" ? initialFromPositionMomentum(s, M, a, type) : initialFromConstants(s, startRadius, M, a, type);
-    if (init.error) return { points: [], fate: init.error };
-    const { event, p0 } = init;
-    const constants = constantsOfMotion(p0, type, event[1], event[2], M, a);
-    if (constants.ut <= 0) return { points: [], fate: "forbidden", constants };
-    const bound = mu2 === 1 && constants.E < 1;
-    const rEsc = escapeRadius(constants, M, a, event[1]);
-    const spatialStep = (r) => 0.03 * Math.max(r, 1);
-    const direction = s.direction < 0 ? -1 : 1;
+    const E = s.mode === "null" ? 1 : s.E;
+    const L = s.mode === "null" ? s.b : s.L;
+    const th0 = Math.PI / 2;
+    const r0 = s.r0;
+    if (r0 <= horizonRadius(M, a) + EPS_HORIZON * M) return { points: [], fate: "inside" };
 
-    // Mino interval M λ = ±20; as in the Wolfram tracker it is lengthened ×4 (up to 300/M)
+    // Ingoing p_r from the mass shell: g^{rr} p_r² = −μ² − (g^{tt}E² − 2g^{tφ}EL + g^{φφ}L²).
+    const g0 = inverseMetric(r0, th0, M, a);
+    const rest = mu2 + g0[0][0] * E * E - 2 * g0[0][3] * E * L + g0[3][3] * L * L;
+    const prSquared = -rest / g0[1][1];
+    if (prSquared < -1e-12 * Math.max(1, Math.abs(rest / g0[1][1]))) {
+      // R(r0) < 0: report the allowed radial intervals for this E, L.
+      const roots = realRoots(potentialCoefficients(M, a, E, L, 0, mu2)).filter((x) => x > horizonRadius(M, a));
+      return { points: [], fate: "notallowed", roots };
+    }
+    const pr = -Math.sqrt(Math.max(0, prSquared));
+    // criarCovetor recovers p_t = −E as the future-directed root; keep the slider's E if the
+    // start lies in the ergoregion, where two future-directed roots can exist.
+    let p0 = createCovector(type, pr, 0, L, r0, th0, M, a);
+    if (!p0 || Math.abs(p0[0] + E) > 1e-8 * Math.max(1, Math.abs(E))) p0 = [-E, pr, 0, L];
+    const constants = constantsOfMotion(p0, type, r0, th0, M, a);
+    if (constants.ut <= 0) return { points: [], fate: "past" };
+
+    const event = [s.t0, r0, th0, (s.ph0 * Math.PI) / 180];
+    const bound = mu2 === 1 && E < 1;
+    const rEsc = escapeRadius(constants, M, a, r0);
+    const spatialStep = (r) => 0.03 * Math.max(r, 1);
+
+    // Mino interval M λ = 20; as in the Wolfram tracker it is lengthened ×4 (up to 300/M)
     // while an unbound orbit has neither reached the horizon nor escaped.
     let limit = MINO_LENGTH;
-    let run = integrateGeodesic(M, a, constants, p0, event, direction * limit, rEsc, EPS_HORIZON, spatialStep);
+    let run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
     while (!bound && run.state === "Fim do intervalo" && limit < 300) {
       limit *= 4;
-      run = integrateGeodesic(M, a, constants, p0, event, direction * limit, rEsc, EPS_HORIZON, spatialStep);
+      run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
     }
 
     // Diagnostics: mass shell −g^{μν}p_μp_ν = μ², relative to the scale Σ|p_μ p_ν g^{μν}| as in
@@ -499,8 +466,8 @@
     const last = run.samples[run.samples.length - 1];
     return {
       points, fate, bound, rMin, rMax, advance, whirlTurns, rPhoton, constants, normError, thetaDeviation, equatorial,
-      deflection: (Math.abs(turning) * 180) / Math.PI, minoLimit: direction * limit, direction, wolframState: run.state,
-      rStop: run.rStop, event, p0, tFinal: last[0], showStart: init.showStart,
+      deflection: (Math.abs(turning) * 180) / Math.PI, minoLimit: limit, wolframState: run.state,
+      rStop: run.rStop, event, p0, tFinal: last[0],
     };
   }
 
@@ -520,8 +487,6 @@
       photonRetro: v("--kerr-photon-retro"),
       iscoPro: v("--kerr-isco-pro"),
       iscoRetro: v("--kerr-isco-retro"),
-      capture: v("--kerr-capture"),
-      captureEdge: v("--kerr-capture-edge"),
       path: v("--kerr-path"),
       text: v("--global-text-color-light"),
     };
@@ -576,22 +541,6 @@
     ctx.lineTo(cx, size);
     ctx.stroke();
 
-    // Capture band for rays arriving from the right: b_c(retro) < b < b_c(pro).
-    if (state.mode === "null" && state.tab === "constants") {
-      const bPro = criticalImpact(a, 1);
-      const bRetro = criticalImpact(a, -1);
-      ctx.fillStyle = c.capture;
-      ctx.fillRect(X(0), Y(bPro), size - X(0), Y(bRetro) - Y(bPro));
-      ctx.strokeStyle = c.captureEdge;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      for (const b of [bPro, bRetro]) {
-        ctx.moveTo(X(0), Y(b));
-        ctx.lineTo(size, Y(b));
-      }
-      ctx.stroke();
-    }
-
     // Ergoregion: r₊ < r < 2M on the equator.
     ctx.setLineDash([]);
     ctx.fillStyle = c.ergo;
@@ -636,7 +585,7 @@
     }
 
     // Geodesic.
-    const result = geodesic(state, Math.max(60, 3 * half));
+    const result = geodesic(state);
     const pathColor = c.path;
     if (result.points.length > 1) {
       ctx.strokeStyle = pathColor;
@@ -645,11 +594,10 @@
       ctx.beginPath();
       result.points.forEach(([x, y], k) => (k ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))));
       ctx.stroke();
-      // Arrows point along the future direction of motion, also for backward integrations.
-      drawArrow(result.direction < 0 ? result.points.slice().reverse() : result.points, X, Y, half, pathColor);
+      drawArrow(result.points, X, Y, half, pathColor);
     }
     // Initial event x^μ(0), projected on the equatorial plane.
-    if (result.showStart && result.event) {
+    if (result.event) {
       const [, r0, th0, ph0] = result.event;
       ctx.fillStyle = pathColor;
       ctx.strokeStyle = c.bg;
@@ -759,24 +707,17 @@
   }
 
   function updateStatus(result) {
-    const who = state.mode === "null" ? "photon" : "particle";
-    const Who = who[0].toUpperCase() + who.slice(1);
-    const back = result.direction < 0;
-    const lead = back ? `Traced back in Mino time, the ${who}` : `The ${who}`;
+    const who = state.mode === "null" ? "Photon" : "Particle";
     let msg;
     switch (result.fate) {
       case "captured":
-        msg = back
-          ? `${lead} reaches r₊ + 10⁻³ M: it came out of the region next to the horizon.`
-          : `${Who} is captured: it reaches r₊ + 10⁻³ M, where the integration stops.`;
+        msg = `${who} is captured: it reaches r₊ + 10⁻³ M, where the integration stops.`;
         break;
       case "escaped":
-        if (back) msg = `${lead} goes out beyond every turning point: it came in from infinity (closest approach r = ${fmt(result.rMin, 2)} M).`;
-        else if (state.tab === "constants") msg = `${Who} is scattered: deflection ${fmt(result.deflection, 1)}°, closest approach r = ${fmt(result.rMin, 2)} M.`;
-        else msg = `${Who} escapes to infinity (closest approach r = ${fmt(result.rMin, 2)} M).`;
+        msg = `${who} escapes to infinity; its direction of motion turns by ${fmt(result.deflection, 1)}° and the closest approach is r = ${fmt(result.rMin, 2)} M.`;
         break;
       case "whirl":
-        msg = `${lead} is still orbiting near r = ${fmt(result.rMin, 2)} M at the end of the Mino interval Mλ = ${fmt(result.minoLimit, 0)}.`;
+        msg = `${who} is still orbiting near r = ${fmt(result.rMin, 2)} M at the end of the Mino interval Mλ = ${fmt(result.minoLimit, 0)}.`;
         break;
       case "bound":
         msg =
@@ -785,39 +726,33 @@
             : `Bound orbit, ${fmt(result.rMin, 2)} M ≤ r ≤ ${fmt(result.rMax, 2)} M` +
               (result.advance !== null ? `; periapsis advance ${fmt(result.advance, 1)}° per radial period.` : ".");
         break;
-      case "forbidden":
-        msg = "No orbit: R(r) < 0 everywhere outside r₊ for this E and L.";
+      case "notallowed": {
+        const roots = result.roots || [];
+        msg = `R(r₀) < 0: this E and L cannot be at r₀ = ${fmt(state.r0, 2)} M.` +
+          (roots.length ? ` Turning points of R(r): ${roots.map((x) => fmt(x, 2)).join(", ")} M.` : "");
         break;
+      }
       case "inside":
         msg = "Choose r₀ outside the horizon (r₀ > r₊ + 10⁻³ M).";
         break;
-      case "noroot":
-        msg = "No future-directed p_t solves g^μν p_μ p_ν = −μ² for these p_r, p_θ, p_φ.";
+      case "past":
+        msg = "No future-directed motion with this E and L at r₀.";
         break;
       default:
-        msg = "The orbit stays outside the plotted region.";
+        msg = "No orbit.";
     }
     if (result.whirlTurns >= 1 && (result.fate === "captured" || result.fate === "escaped")) {
-      const end =
-        result.fate === "captured"
-          ? back ? "came out of the region next to the horizon" : "reaches the horizon"
-          : back ? "came in from infinity" : `escapes (deflection ${fmt(result.deflection, 1)}°)`;
-      msg = `${back ? "Traced back, the " + who : Who} whirls ${fmt(result.whirlTurns, 1)} turns around the photon orbit r = ${fmt(result.rPhoton, 3)} M; it ${end}.`;
+      const end = result.fate === "captured" ? "reaches the horizon" : "escapes to infinity";
+      msg = `${who} whirls ${fmt(result.whirlTurns, 1)} turns around the photon orbit r = ${fmt(result.rPhoton, 3)} M, then ${end}.`;
     }
+    if (Number.isFinite(result.tFinal)) msg += ` Coordinate time: t = ${fmt(state.t0, 2)} M → ${fmt(result.tFinal, 2)} M.`;
     if (Number.isFinite(result.normError)) {
       msg += ` Checks: mass shell g^μν p_μ p_ν = −μ² to ${result.normError.toExponential(0)} (relative), max|θ − π/2| = ${result.thetaDeviation ? result.thetaDeviation.toExponential(0) : "0"}.`;
     }
     $("kerr-status").textContent = msg;
     canvas.setAttribute("aria-label", `Kerr black hole with a/M = ${fmt(state.a)}. ${msg}`);
-
-    // Derived quantities shown in the position & momentum tab.
-    const c = result.constants;
-    $("kerr-out-pt").textContent = result.p0 ? fmt(result.p0[0], 4) : "–";
-    $("kerr-out-E").textContent = c ? fmt(c.E, 4) : "–";
-    $("kerr-out-L").textContent = c ? fmt(c.L, 4) : "–";
-    $("kerr-out-Q").textContent = c ? fmt(Math.abs(c.Q) < 1e-12 ? 0 : c.Q, 4) : "–";
-    $("kerr-out-t").textContent = Number.isFinite(result.tFinal) ? fmt(result.tFinal, 2) : "–";
   }
+
 
 
   let pending = false;
@@ -858,50 +793,26 @@
   const setB = bindPair("b", 3);
   const setE = bindPair("E", 4);
   const setL = bindPair("L", 3);
-  [["t0", 2], ["r0", 3], ["th0", 2], ["ph0", 2], ["pr", 3], ["pth", 3], ["pph", 3]].forEach(([key, digits]) => bindPair(key, digits));
+  const setR0 = bindPair("r0", 3);
+  bindPair("t0", 2);
+  bindPair("ph0", 1);
   void setA;
 
-  // Shows the controls of the current mode (null/timelike) and tab (constants/initial):
-  // elements carry data-for="null|timelike" and/or data-tab="constants|initial".
-  function setView() {
-    const groups = [
-      [".kerr-modes button", "mode", state.mode],
-      [".kerr-direction button", "direction", String(state.direction)],
-      [".kerr-tabs button", "tab", state.tab],
-    ];
-    for (const [selector, key, value] of groups) {
-      document.querySelectorAll(selector).forEach((btn) => {
-        const active = btn.dataset[key] === value;
-        btn.classList.toggle("active", active);
-        btn.setAttribute(btn.getAttribute("role") === "tab" ? "aria-selected" : "aria-pressed", String(active));
-      });
-    }
-    document.querySelectorAll(".kerr [data-for], .kerr [data-tab-panel]").forEach((el) => {
-      const modeOk = !el.dataset.for || el.dataset.for === state.mode;
-      const tabOk = !el.dataset.tabPanel || el.dataset.tabPanel === state.tab;
-      el.hidden = !(modeOk && tabOk);
+  // Shows the controls of the current mode: elements carry data-for="null" or "timelike".
+  function setMode(mode) {
+    state.mode = mode;
+    document.querySelectorAll(".kerr-modes button").forEach((btn) => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", String(active));
+    });
+    document.querySelectorAll(".kerr [data-for]").forEach((el) => {
+      el.hidden = el.dataset.for !== mode;
     });
     redraw();
   }
 
-  document.querySelectorAll(".kerr-modes button").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      state.mode = btn.dataset.mode;
-      setView();
-    }),
-  );
-  document.querySelectorAll(".kerr-direction button").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      state.direction = Number(btn.dataset.direction);
-      setView();
-    }),
-  );
-  document.querySelectorAll(".kerr-tabs button").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      state.tab = btn.dataset.tab;
-      setView();
-    }),
-  );
+  document.querySelectorAll(".kerr-modes button").forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 
   document.querySelectorAll(".kerr-presets button").forEach((btn) =>
     btn.addEventListener("click", () => {
@@ -909,9 +820,12 @@
       if (btn.dataset.preset === "critical") {
         setB(criticalImpact(state.a, dir), null);
       } else {
-        const orbit = circularOrbit(state.a, isco(state.a, dir), dir);
+        // Circular orbit: start on the ISCO itself, where this E and L are allowed.
+        const rIsco = isco(state.a, dir);
+        const orbit = circularOrbit(state.a, rIsco, dir);
         setE(orbit.E, null);
         setL(orbit.L, null);
+        setR0(rIsco, null);
       }
     }),
   );
@@ -930,7 +844,7 @@
   window.addEventListener("resize", redraw);
 
   updateTable();
-  setView();
+  setMode(state.mode);
 
   // Exposed for checking numbers from the browser console.
   window.Kerr = {

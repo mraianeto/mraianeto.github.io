@@ -46,8 +46,6 @@
   --kerr-photon-retro: #e87ba4;
   --kerr-isco-pro: #008300;
   --kerr-isco-retro: #6250d6;
-  --kerr-capture: rgba(0, 0, 0, 0.06);
-  --kerr-capture-edge: rgba(0, 0, 0, 0.35);
   --kerr-path: #1c1c1d;
 }
 
@@ -78,8 +76,6 @@ html[data-theme="dark"] {
   --kerr-photon-retro: #d55181;
   --kerr-isco-pro: #008300;
   --kerr-isco-retro: #9085e9;
-  --kerr-capture: rgba(255, 255, 255, 0.06);
-  --kerr-capture-edge: rgba(255, 255, 255, 0.35);
   --kerr-path: #e8e8e8;
 }
 
@@ -809,66 +805,17 @@ code {
   font-size: 0.875rem;
 }
 
-.kerr .kerr-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
 .kerr .kerr-modes {
   display: flex;
-}
-
-.kerr .kerr-tabs {
-  display: flex;
-  gap: 1rem;
-  border-bottom: 1px solid var(--global-divider-color);
-  margin: 0.25rem 0 0.75rem;
-}
-
-.kerr .kerr-tabs button {
-  background: none;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  padding: 0.3rem 0;
-  font-size: 0.8rem;
-  color: var(--global-text-color-light);
-  cursor: pointer;
-}
-
-.kerr .kerr-tabs button:hover {
-  color: var(--global-hover-color);
-}
-
-.kerr .kerr-tabs button.active {
-  color: var(--global-theme-color);
-  border-bottom-color: var(--global-theme-color);
-  font-weight: 500;
-}
-
-.kerr .kerr-tabs button:focus {
-  outline: none;
-}
-
-.kerr .kerr-tabs button:focus-visible {
-  outline: 2px solid var(--global-divider-color);
+  margin-bottom: 0.75rem;
 }
 
 .kerr .kerr-subhead {
   font-size: 0.8rem;
+  border-top: 1px solid var(--global-divider-color);
+  padding-top: 0.5rem;
   color: var(--global-text-color-light);
   margin: 0.5rem 0 0.25rem;
-}
-
-.kerr [data-tab-panel][hidden] {
-  display: none;
-}
-
-.kerr table.kerr-derived th[scope="row"] {
-  white-space: normal;
 }
 
 .kerr .kerr-modes button,
@@ -1061,12 +1008,6 @@ code {
 .kerr td .swatch {
   width: 1.1rem;
   margin-right: 0.3rem;
-}
-
-.kerr .swatch.capture {
-  height: 0.7rem;
-  border: 1px dashed var(--kerr-capture-edge);
-  background: var(--kerr-capture);
 }
 
 .kerr .swatch.path {
