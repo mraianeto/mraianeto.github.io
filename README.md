@@ -7,7 +7,7 @@ It looks like the [al-folio](https://github.com/alshedivat/al-folio) Jekyll them
 ## Structure
 
 ```
-index.html                    about page: bio, news, Kerr geodesics, selected publications
+index.html                    about page: bio, news, selected publications, "Fun: Kerr Geodesics"
 publications/index.html       publications, rendered from assets/bibliography/papers.bib
 studies/index.html            reports and notes, rendered from assets/bibliography/studies.bib
 cv/index.html                 CV, rendered from assets/json/cv.json

@@ -22,7 +22,7 @@
   const MAX_STEPS = 150000;
 
   // Default timelike orbit: bound, 5 M ≤ r ≤ 12 M at a = 0.9 (R(5) = R(12) = 0).
-  const state = { mode: "null", a: 0.9, b: 3.0, E: 0.9442, L: 3.012, zoom: 5 };
+  const state = { mode: "timelike", a: 0.9, b: 3.0, E: 0.9442, L: 3.012, zoom: 5 };
 
   // ------------------------------------------------------------ physics
 
