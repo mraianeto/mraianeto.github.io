@@ -20,11 +20,11 @@
 :root {
   color-scheme: light;
   --global-bg-color: #ffffff;
-  --global-code-bg-color: rgba(181, 9, 172, 0.05);
+  --global-code-bg-color: rgba(38, 152, 186, 0.05);
   --global-text-color: #000000;
   --global-text-color-light: #828282;
-  --global-theme-color: #b509ac;
-  --global-hover-color: #b509ac;
+  --global-theme-color: #2698ba;
+  --global-hover-color: #2698ba;
   --global-hover-text-color: #ffffff;
   --global-footer-bg-color: #1c1c1d;
   --global-footer-text-color: #e8e8e8;
@@ -33,19 +33,22 @@
   --global-card-bg-color: #ffffff;
   --global-highlight-color: #b71c1c;
 
-  /* Kerr widget palette (light) */
+  /* Kerr widget palette (light). The four orbit colours were checked with a
+     colour-blindness validator (all pairs, both themes); the path is plain ink
+     so it never competes with them. */
   --kerr-canvas-bg: #fafafa;
   --kerr-grid: rgba(0, 0, 0, 0.06);
   --kerr-horizon: #000000;
   --kerr-horizon-edge: rgba(0, 0, 0, 0.55);
-  --kerr-ergo: rgba(181, 9, 172, 0.14);
-  --kerr-ergo-edge: rgba(181, 9, 172, 0.55);
-  --kerr-photon: #d18b00;
-  --kerr-isco: #009e73;
+  --kerr-ergo: rgba(38, 152, 186, 0.16);
+  --kerr-ergo-edge: rgba(38, 152, 186, 0.7);
+  --kerr-photon-pro: #eda100;
+  --kerr-photon-retro: #e87ba4;
+  --kerr-isco-pro: #008300;
+  --kerr-isco-retro: #6250d6;
   --kerr-capture: rgba(0, 0, 0, 0.06);
   --kerr-capture-edge: rgba(0, 0, 0, 0.35);
-  --kerr-null-path: #e85d04;
-  --kerr-timelike-path: #0072b2;
+  --kerr-path: #1c1c1d;
 }
 
 html[data-theme="dark"] {
@@ -71,12 +74,13 @@ html[data-theme="dark"] {
   --kerr-horizon-edge: rgba(255, 255, 255, 0.45);
   --kerr-ergo: rgba(38, 152, 186, 0.2);
   --kerr-ergo-edge: rgba(38, 152, 186, 0.75);
-  --kerr-photon: #ffd000;
-  --kerr-isco: #00e09d;
+  --kerr-photon-pro: #c98500;
+  --kerr-photon-retro: #d55181;
+  --kerr-isco-pro: #008300;
+  --kerr-isco-retro: #9085e9;
   --kerr-capture: rgba(255, 255, 255, 0.06);
   --kerr-capture-edge: rgba(255, 255, 255, 0.35);
-  --kerr-null-path: #f97316;
-  --kerr-timelike-path: #ff4f8b;
+  --kerr-path: #e8e8e8;
 }
 
 /* Theme toggle: show the icon of the current setting (system / dark / light). */
@@ -872,9 +876,46 @@ code {
   margin: 0;
 }
 
+/* Sliders: thin divider-coloured track, theme-coloured fill (--fill is set by the script). */
 .kerr .kerr-control input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  accent-color: var(--global-theme-color);
+  height: 4px;
+  margin: 0.6rem 0 0.4rem;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--global-theme-color) var(--fill, 50%), var(--global-divider-color) var(--fill, 50%));
+  cursor: pointer;
+}
+
+.kerr .kerr-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--global-theme-color);
+}
+
+.kerr .kerr-control input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--global-theme-color);
+}
+
+.kerr .kerr-control input[type="range"]:focus {
+  outline: none;
+}
+
+.kerr .kerr-control input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--global-divider-color);
+}
+
+.kerr .kerr-control input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--global-divider-color);
 }
 
 .kerr .kerr-presets {
@@ -944,12 +985,25 @@ code {
   border-color: var(--kerr-ergo-edge);
 }
 
-.kerr .swatch.photon {
-  border-top: 2px dashed var(--kerr-photon);
+.kerr .swatch.photon-pro {
+  border-top: 2px dashed var(--kerr-photon-pro);
 }
 
-.kerr .swatch.isco {
-  border-top: 2px dashed var(--kerr-isco);
+.kerr .swatch.photon-retro {
+  border-top: 2px dashed var(--kerr-photon-retro);
+}
+
+.kerr .swatch.isco-pro {
+  border-top: 2px dashed var(--kerr-isco-pro);
+}
+
+.kerr .swatch.isco-retro {
+  border-top: 2px dashed var(--kerr-isco-retro);
+}
+
+.kerr td .swatch {
+  width: 1.1rem;
+  margin-right: 0.3rem;
 }
 
 .kerr .swatch.capture {
@@ -958,13 +1012,8 @@ code {
   background: var(--kerr-capture);
 }
 
-.kerr .swatch.path-null {
-  border-top-color: var(--kerr-null-path);
-  border-top-width: 3px;
-}
-
-.kerr .swatch.path-timelike {
-  border-top-color: var(--kerr-timelike-path);
+.kerr .swatch.path {
+  border-top-color: var(--kerr-path);
   border-top-width: 3px;
 }
 

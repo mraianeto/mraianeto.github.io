@@ -207,12 +207,13 @@
       horizonEdge: v("--kerr-horizon-edge"),
       ergo: v("--kerr-ergo"),
       ergoEdge: v("--kerr-ergo-edge"),
-      photon: v("--kerr-photon"),
-      isco: v("--kerr-isco"),
+      photonPro: v("--kerr-photon-pro"),
+      photonRetro: v("--kerr-photon-retro"),
+      iscoPro: v("--kerr-isco-pro"),
+      iscoRetro: v("--kerr-isco-retro"),
       capture: v("--kerr-capture"),
       captureEdge: v("--kerr-capture-edge"),
-      nullPath: v("--kerr-null-path"),
-      timelikePath: v("--kerr-timelike-path"),
+      path: v("--kerr-path"),
       text: v("--global-text-color-light"),
     };
   }
@@ -295,13 +296,14 @@
     circle(2);
     ctx.stroke();
 
-    // Photon orbits and ISCOs (inner circle of each pair is prograde).
+    // Photon orbits (short dashes) and ISCOs (long dashes), one colour each for
+    // prograde and retrograde; the prograde circle is always the inner one.
     ctx.lineWidth = 1.5;
     for (const [radius, color, dash] of [
-      [photonOrbit(a, 1), c.photon, [6, 4]],
-      [photonOrbit(a, -1), c.photon, [6, 4]],
-      [isco(a, 1), c.isco, [9, 5]],
-      [isco(a, -1), c.isco, [9, 5]],
+      [photonOrbit(a, 1), c.photonPro, [5, 4]],
+      [photonOrbit(a, -1), c.photonRetro, [5, 4]],
+      [isco(a, 1), c.iscoPro, [10, 5]],
+      [isco(a, -1), c.iscoRetro, [10, 5]],
     ]) {
       ctx.strokeStyle = color;
       ctx.setLineDash(dash);
@@ -326,10 +328,10 @@
 
     // Geodesic.
     const result = geodesic(state, Math.max(60, 3 * half));
-    const pathColor = state.mode === "null" ? c.nullPath : c.timelikePath;
+    const pathColor = c.path;
     if (result.points.length > 1) {
       ctx.strokeStyle = pathColor;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.25;
       ctx.lineJoin = "round";
       ctx.beginPath();
       result.points.forEach(([x, y], k) => (k ? ctx.lineTo(X(x), Y(y)) : ctx.moveTo(X(x), Y(y))));
@@ -491,6 +493,7 @@
       const max = parseFloat(range.max);
       state[key] = Math.min(max, Math.max(min, value));
       if (from !== range) range.value = state[key];
+      range.style.setProperty("--fill", `${(100 * (state[key] - min)) / (max - min)}%`);
       if (from !== number) number.value = state[key].toFixed(digits);
       if (key === "a") updateTable();
       redraw();

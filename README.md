@@ -37,7 +37,7 @@ Bootstrap 4.6.2, MDB 4.20.0, Font Awesome 6.5.2, Academicons 1.9.4 and MathJax 3
 - **New report / study:** same, in `assets/bibliography/studies.bib`.
 - **CV:** edit `assets/json/cv.json`, and replace `assets/pdf/cv.pdf` with the new PDF. Section types are `map`, `time_table`, `list` and `nested_list` (as in al-folio); strings may contain HTML. JSON does not allow trailing commas.
 - **Bio, photo, links:** in `index.html`. The navbar and footer are repeated in each page, so a new menu item has to be added to all five HTML files.
-- **Colours:** the `:root` (light) and `html[data-theme="dark"]` blocks at the top of `assets/css/main.css`. The light theme uses al-folio's purple `#b509ac` and the dark theme its cyan `#2698ba`.
+- **Colours:** the `:root` (light) and `html[data-theme="dark"]` blocks at the top of `assets/css/main.css`. Both themes use al-folio's cyan `#2698ba` as the accent colour.
 
 ## Preview locally
 
