@@ -50,7 +50,7 @@ python3 -m http.server 8000
 
 ## Kerr geodesics widget
 
-Equatorial geodesics of the Kerr metric (G = c = M = 1) from Hamilton's equations for H = ½ g^{μν} p_μ p_ν, written in ingoing Kerr coordinates so they are regular at the horizon, and integrated with an adaptive Dormand–Prince 5(4) scheme (tolerance 1e-10). The mass-shell constraint H = −μ²/2 is monitored and shown under the plot. Prograde and retrograde photon orbits, ISCOs (Bardeen, Press & Teukolsky 1972), critical impact parameters and the asymmetric capture band are computed in closed form. Bound timelike orbits (E < μ) start at their apoapsis. `window.Kerr` exposes the functions in the browser console.
+The integration is a JavaScript port of the single-geodesic part of the Wolfram code PP_Kerr_vWolfram_Equatorial.wl (integrarGeodesica, metricaInversa and its derivatives, criarCovetor, calcularConstantes, potencialRadial, haRetornoExterior; the Penrose process is not included). It integrates Hamilton's equations for H = ½ g^{μν} p_μ p_ν in Boyer–Lindquist coordinates and Mino time, stops at r₊ + 10⁻³ M, at r_escape or near the poles, and uses an adaptive Dormand–Prince 5(4) scheme with the notebook's NDSolve settings (accuracy and precision goals 10, maximum step 1/500 of the interval). Checked against the Wolfram code itself: endpoints agree to about 1e-9. Photon orbits, ISCOs (Bardeen, Press & Teukolsky 1972), critical impact parameters and the capture band are computed in closed form. Bound timelike orbits (E < μ) start at their apoapsis. `window.Kerr` exposes the functions in the browser console.
 
 ## Credits
 

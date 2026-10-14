@@ -1,22 +1,23 @@
 // Equatorial geodesics of a Kerr black hole, drawn on the about page.
 //
-// Units G = c = M = 1. The hole spins about +z, i.e. counter-clockwise on screen.
-// Orbits stay in the equatorial plane θ = π/2: ∂H/∂θ vanishes there by reflection symmetry,
-// so p_θ = 0 is preserved. E = −p_v and L = p_φ are conserved (per unit rest mass for
-// timelike orbits, μ = 1; for photons only b = L/E matters, so E = 1). L > 0 is prograde.
+// The integration is a JavaScript port of the single-geodesic part of the Wolfram code
+// PP_Kerr_vWolfram_Equatorial.wl (integrarGeodesica and the functions it uses); the Penrose
+// process itself is not ported. Wolfram names are given in [brackets] next to each function.
 //
-// Hamiltonian method: H = ½ g^{μν} p_μ p_ν with the inverse Kerr metric in ingoing Kerr
-// coordinates (v, r, θ, φ̃), dv = dt + (r²+a²)/Δ dr, dφ̃ = dφ + a/Δ dr, which is regular at
-// the horizon. On the equator (Σ = r²):
-//   g^{vv} = a²/r²,  g^{vr} = (r²+a²)/r²,  g^{vφ} = a/r²,  g^{rr} = Δ/r²,  g^{rφ} = a/r²,  g^{φφ} = 1/r²
-// so, with P = E(r²+a²) − aL and Δ = r² − 2r + a²,
-//   H(r, p_r) = [(L − aE)² − 2P p_r + Δ p_r²] / (2r²)
-// and Hamilton's equations in the affine parameter λ (proper time for μ = 1) are
-//   dr/dλ   =  ∂H/∂p_r = (Δ p_r − P) / r²
-//   dφ̃/dλ  =  ∂H/∂p_φ = (L − aE + a p_r) / r²
-//   dp_r/dλ = −∂H/∂r   = N/r³ − ∂N/∂r / (2r²),   N = 2r²H,   ∂N/∂r = −4E r p_r + 2(r − 1) p_r²
-// with the mass-shell constraint H = −μ²/2 (μ = 1 timelike, 0 null), which the integrator monitors.
-// They are integrated with an adaptive Dormand–Prince 5(4) Runge–Kutta scheme.
+// Method (as in the Wolfram code): Hamilton's equations for H = ½ g^{μν} p_μ p_ν with the
+// inverse Kerr metric in Boyer–Lindquist coordinates (t, r, θ, φ), written in Mino time λ
+// (dτ = Σ dλ) and integrated over s ∈ [0, 1] with λ = λ_lim s:
+//   dx^μ/ds  =  λ_lim Σ g^{μν} p_ν
+//   dp_r/ds  = −λ_lim Σ ½ p_μ p_ν ∂_r g^{μν}
+//   dp_θ/ds  = −λ_lim Σ ½ p_μ p_ν ∂_θ g^{μν}
+//   dτ/ds    =  λ_lim Σ,   dλ/ds = λ_lim,   p_t = −E and p_φ = L constant.
+// Integration stops at r = r₊ + ε M (Boyer–Lindquist coordinates are singular at r₊), at
+// r = r_escape, or near the poles. NDSolve (AccuracyGoal = PrecisionGoal = 10,
+// MaxStepFraction = 1/500) is replaced by an adaptive Dormand–Prince 5(4) Runge–Kutta
+// with the same tolerances and maximum step, plus a smaller step where needed for drawing.
+//
+// Units G = c = M = 1 in the widget; the hole spins about +z (counter-clockwise on screen).
+// θ = π/2 and p_θ = 0 initially, so the orbit stays equatorial; max|θ − π/2| is reported.
 (function () {
   const canvas = document.getElementById("kerr-canvas");
   if (!canvas) return;
@@ -24,11 +25,12 @@
   const $ = (id) => document.getElementById(id);
 
   const ZOOM_LEVELS = [4, 6, 8, 10, 12, 15, 20, 30, 50];
-  const MAX_TURNS = 12; // stop bound orbits after this many revolutions
-  const MAX_STEPS = 150000;
+  const MAX_STEPS = 200000; // safety cap on Runge–Kutta steps per integration
+  const EPS_HORIZON = 1e-3; // (r_stop − r₊)/M  [epsilonHorizonte]
 
   // Default timelike orbit: bound, 5 M ≤ r ≤ 12 M at a = 0.9 (R(5) = R(12) = 0).
-  const state = { mode: "timelike", a: 0.9, b: 3.0, E: 0.9442, L: 3.012, zoom: 5 };
+  // mino = M λ_lim, the Mino-time length of the integration [lambdaMaximo].
+  const state = { mode: "timelike", a: 0.9, b: 3.0, E: 0.9442, L: 3.012, mino: 20, zoom: 5 };
 
   // ------------------------------------------------------------ physics
 
@@ -60,50 +62,282 @@
     };
   }
 
-  // Radial function R(r) = P² − Δ[μ²r² + (L − aE)²], from H = −μ²/2 with p_r eliminated.
-  // Used only to place the initial point (turning points and initial p_r).
-  function radialFunction(g) {
-    const { a, E, L, mu2 } = g;
-    const c4 = E * E - mu2;
-    const c3 = 2 * mu2;
-    const c2 = a * a * c4 - L * L;
-    const c1 = 2 * (L - a * E) * (L - a * E);
-    return (r) => r * (c1 + r * (c2 + r * (c3 + r * c4)));
-  }
+  // ---------------------------------------- port of PP_Kerr_vWolfram_Equatorial.wl
 
-  // Hamiltonian H(r, p_r) on the equator in ingoing Kerr coordinates.
-  function hamiltonian(g, r, pr) {
-    const { a, E, L } = g;
-    const P = E * (r * r + a * a) - a * L;
-    const delta = r * r - 2 * r + a * a;
-    return ((L - a * E) * (L - a * E) - 2 * P * pr + delta * pr * pr) / (2 * r * r);
-  }
+  const deltaKerr = (r, M, a) => r * r - 2 * M * r + a * a; //                  [deltaKerr]
+  const sigmaKerr = (r, th, a) => r * r + a * a * Math.cos(th) ** 2; //         [sigmaKerr]
+  const horizonRadius = (M, a) => M + Math.sqrt(M * M - a * a); //             [raioHorizonte]
+  const normalization = (type) => (type === "timelike" ? 1 : 0); //            [normalizacao]
 
-  // Hamilton's equations: d/dλ of the state [r, φ̃, p_r].
-  function hamiltonRates(g, y) {
-    const { a, E, L } = g;
-    const [r, , pr] = y;
-    const r2 = r * r;
-    const P = E * (r2 + a * a) - a * L;
-    const delta = r2 - 2 * r + a * a;
-    const N = (L - a * E) * (L - a * E) - 2 * P * pr + delta * pr * pr; // N = 2r²H
-    const dNdr = -4 * E * r * pr + (2 * r - 2) * pr * pr; //               ∂N/∂r at fixed p_r
+  // Inverse Boyer–Lindquist metric g^{μν}, index order (t, r, θ, φ).           [metricaInversa]
+  function inverseMetric(r, th, M, a) {
+    const sig = sigmaKerr(r, th, a);
+    const del = deltaKerr(r, M, a);
+    const s2 = Math.sin(th) ** 2;
+    const A = (r * r + a * a) ** 2 - a * a * del * s2;
+    const gtp = (-2 * M * a * r) / (sig * del);
     return [
-      (delta * pr - P) / r2, //                 dr/dλ   =  ∂H/∂p_r
-      (L - a * E + a * pr) / r2, //             dφ̃/dλ  =  ∂H/∂p_φ
-      -(dNdr / (2 * r2) - N / (r2 * r)), //     dp_r/dλ = −∂H/∂r,  H = N/(2r²)
+      [-A / (sig * del), 0, 0, gtp],
+      [0, del / sig, 0, 0],
+      [0, 0, 1 / sig, 0],
+      [gtp, 0, 0, (del - a * a * s2) / (sig * del * s2)],
     ];
   }
 
-  // Ingoing solution of H = −μ²/2 for p_r:  Δp_r² − 2P p_r + K = 0  →  p_r = K/(P + √R).
-  function ingoingMomentum(g, r, R) {
-    const { a, E, L, mu2 } = g;
-    const P = E * (r * r + a * a) - a * L;
-    const K = mu2 * r * r + (L - a * E) * (L - a * E);
-    return K / (P + Math.sqrt(Math.max(R, 0)));
+  // ∂g^{μν}/∂r and ∂g^{μν}/∂θ. The Wolfram code takes them with D[]; here they are written
+  // out, using g^{φφ} = 1/(Σ sin²θ) − a²/(ΣΔ).          [derivadaMetricaRadial, derivadaMetricaPolar]
+  function inverseMetricDerivatives(r, th, M, a) {
+    const sn = Math.sin(th);
+    const cs = Math.cos(th);
+    const s2 = sn * sn;
+    const sig = sigmaKerr(r, th, a);
+    const del = deltaKerr(r, M, a);
+    const A = (r * r + a * a) ** 2 - a * a * del * s2;
+    const SD = sig * del;
+    // radial
+    const sigR = 2 * r;
+    const delR = 2 * r - 2 * M;
+    const AR = 4 * r * (r * r + a * a) - a * a * delR * s2;
+    const SDR = sigR * del + sig * delR;
+    const ttR = -(AR * SD - A * SDR) / (SD * SD);
+    const tpR = (-2 * M * a * (SD - r * SDR)) / (SD * SD);
+    const rrR = (delR * sig - del * sigR) / (sig * sig);
+    const hhR = -sigR / (sig * sig);
+    const ppR = -sigR / (sig * sig * s2) + (a * a * SDR) / (SD * SD);
+    // polar
+    const sigT = -2 * a * a * sn * cs;
+    const s2T = 2 * sn * cs;
+    const AT = -a * a * del * s2T;
+    const SDT = sigT * del;
+    const ttT = -(AT * SD - A * SDT) / (SD * SD);
+    const tpT = (2 * M * a * r * SDT) / (SD * SD);
+    const rrT = (-del * sigT) / (sig * sig);
+    const hhT = -sigT / (sig * sig);
+    const ppT = -(sigT * s2 + sig * s2T) / ((sig * s2) ** 2) + (a * a * SDT) / (SD * SD);
+    const mat = (tt, tp, rr, hh, pp) => [
+      [tt, 0, 0, tp],
+      [0, rr, 0, 0],
+      [0, 0, hh, 0],
+      [tp, 0, 0, pp],
+    ];
+    return { dr: mat(ttR, tpR, rrR, hhR, ppR), dth: mat(ttT, tpT, rrT, hhT, ppT) };
   }
 
-  // Largest turning point above the horizon for bound (E < 1) orbits, or null.
+  const raise = (g, p) => g.map((row) => row[0] * p[0] + row[1] * p[1] + row[2] * p[2] + row[3] * p[3]);
+  const contract = (p, g, q) => p.reduce((sum, pi, i) => sum + pi * (g[i][0] * q[0] + g[i][1] * q[1] + g[i][2] * q[2] + g[i][3] * q[3]), 0);
+
+  // Covector p_μ from its spatial components: solves g^{μν}p_μp_ν = −μ² for p_t and keeps the
+  // future-directed root (p^t > 0) with the largest p^t; null if there is none.     [criarCovetor]
+  function createCovector(type, pr, pth, pph, r, th, M, a) {
+    const g = inverseMetric(r, th, M, a);
+    const qa = g[0][0];
+    const qb = 2 * g[0][3] * pph;
+    const qc = g[1][1] * pr * pr + g[2][2] * pth * pth + g[3][3] * pph * pph + normalization(type);
+    const disc = qb * qb - 4 * qa * qc;
+    if (disc < 0) return null;
+    const roots = disc === 0 ? [-qb / (2 * qa)] : [(-qb + Math.sqrt(disc)) / (2 * qa), (-qb - Math.sqrt(disc)) / (2 * qa)];
+    const contravariantT = (pt) => g[0][0] * pt + g[0][3] * pph;
+    const future = roots.filter((pt) => contravariantT(pt) > 0);
+    if (!future.length) return null;
+    const pt = future.reduce((best, x) => (contravariantT(x) > contravariantT(best) ? x : best));
+    return [pt, pr, pth, pph];
+  }
+
+  // Radial potential R(r).                                                      [potencialRadial]
+  const radialPotential = (r, M, a, E, L, Q, mu2) =>
+    (E * (r * r + a * a) - a * L) ** 2 - deltaKerr(r, M, a) * (mu2 * r * r + (L - a * E) ** 2 + Q);
+
+  // Energy, angular momentum and Carter constant of a covector, plus checks.    [calcularConstantes]
+  function constantsOfMotion(p, type, r, th, M, a) {
+    const g = inverseMetric(r, th, M, a);
+    const mu2 = normalization(type);
+    const E = -p[0];
+    const L = p[3];
+    const Q = p[2] ** 2 + Math.cos(th) ** 2 * (a * a * (mu2 - E * E) + (L * L) / Math.sin(th) ** 2);
+    return { E, L, Q, mu2, norm: -contract(p, g, p), ut: raise(g, p)[0] };
+  }
+
+  // Real roots of a polynomial c[0] x^n + ... + c[n] (Durand–Kerner, then Newton polish).
+  function realRoots(coeffs) {
+    const big = Math.max(...coeffs.map(Math.abs));
+    let c = coeffs.slice();
+    while (c.length > 1 && Math.abs(c[0]) <= 1e-14 * big) c.shift();
+    const n = c.length - 1;
+    if (n < 1) return [];
+    c = c.map((x) => x / c[0]);
+    const bound = 1 + Math.max(...c.slice(1).map(Math.abs));
+    let z = Array.from({ length: n }, (_, k) => [bound * Math.cos(0.4 + (2 * Math.PI * k) / n), bound * Math.sin(0.4 + (2 * Math.PI * k) / n)]);
+    const mul = (u, v) => [u[0] * v[0] - u[1] * v[1], u[0] * v[1] + u[1] * v[0]];
+    const div = (u, v) => {
+      const d = v[0] * v[0] + v[1] * v[1] || 1e-300;
+      return [(u[0] * v[0] + u[1] * v[1]) / d, (u[1] * v[0] - u[0] * v[1]) / d];
+    };
+    for (let it = 0; it < 500; it += 1) {
+      let moved = 0;
+      z = z.map((zi, i) => {
+        let pz = [1, 0];
+        for (let k = 1; k <= n; k += 1) pz = [pz[0] * zi[0] - pz[1] * zi[1] + c[k], pz[0] * zi[1] + pz[1] * zi[0]];
+        let den = [1, 0];
+        z.forEach((zj, j) => {
+          if (j !== i) den = mul(den, [zi[0] - zj[0], zi[1] - zj[1]]);
+        });
+        const step = div(pz, den);
+        moved = Math.max(moved, Math.hypot(step[0], step[1]));
+        return [zi[0] - step[0], zi[1] - step[1]];
+      });
+      if (moved < 1e-15 * bound) break;
+    }
+    const poly = (x) => c.reduce((acc, ck) => acc * x + ck, 0);
+    const dpoly = (x) => c.slice(0, n).reduce((acc, ck, k) => acc * x + ck * (n - k), 0);
+    return z
+      .filter((zi) => Math.abs(zi[1]) <= 1e-7 * Math.max(1, Math.abs(zi[0])))
+      .map((zi) => {
+        let x = zi[0];
+        for (let k = 0; k < 3; k += 1) {
+          const d = dpoly(x);
+          if (d) x -= poly(x) / d;
+        }
+        return x;
+      })
+      .sort((u, v) => u - v);
+  }
+
+  // Coefficients of R(r) = c0 r⁴ + c1 r³ + c2 r² + c3 r + c4 (expanded potencialRadial).
+  const potentialCoefficients = (M, a, E, L, Q, mu2) => [
+    E * E - mu2,
+    2 * M * mu2,
+    a * a * (E * E - mu2) - L * L - Q,
+    2 * M * ((L - a * E) ** 2 + Q),
+    -a * a * Q,
+  ];
+
+  // Is there a turning point R(r) = 0 beyond rInitial? (Then reaching r_escape does not
+  // mean escaping to infinity.)                                              [haRetornoExterior]
+  function hasOuterReturn(c, M, a, rInitial) {
+    return realRoots(potentialCoefficients(M, a, c.E, c.L, c.Q, c.mu2)).some((x) => x > rInitial);
+  }
+
+  // Escape radius used to confirm escapes: beyond every turning point.  [raioEscapeVerificacao]
+  function escapeRadius(c, M, a, r0) {
+    const roots = realRoots(potentialCoefficients(M, a, c.E, c.L, c.Q, c.mu2));
+    return Math.min(Math.max(50, 2 * r0, 2 * Math.max(0, ...roots)), 1e7);
+  }
+
+  // Dormand–Prince 5(4) tableau (the system is autonomous, so the nodes c_i are not needed).
+  const DP_A = [
+    [],
+    [1 / 5],
+    [3 / 40, 9 / 40],
+    [44 / 45, -56 / 15, 32 / 9],
+    [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
+    [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
+    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
+  ];
+  const DP_B = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
+  const DP_E = [71 / 57600, 0, -71 / 16695, 71 / 1920, -17253 / 339200, 22 / 525, -1 / 40]; // b5 − b4
+  const RTOL = 1e-10; // PrecisionGoal -> 10
+  const ATOL = 1e-10; // AccuracyGoal -> 10
+  const MAX_STEP = 1 / 500; // MaxStepFraction -> 1/500 of s ∈ [0, 1]
+
+  // One Dormand–Prince step; returns the 5th-order solution and the scaled error norm.
+  function dopriStep(f, y, h) {
+    const k = [f(y)];
+    for (let st = 1; st < 7; st += 1) {
+      const ys = y.map((q, i) => q + h * DP_A[st].reduce((sum, aij, j) => sum + aij * k[j][i], 0));
+      k.push(f(ys));
+    }
+    const next = y.map((q, i) => q + h * DP_B.reduce((sum, bj, j) => sum + bj * k[j][i], 0));
+    let err = 0;
+    for (let i = 0; i < y.length; i += 1) {
+      const e = h * DP_E.reduce((sum, cj, j) => sum + cj * k[j][i], 0);
+      err = Math.max(err, Math.abs(e) / (ATOL + RTOL * Math.max(Math.abs(y[i]), Math.abs(next[i]))));
+    }
+    return { next, err };
+  }
+
+  // Finds the step length τ ∈ (0, h] at which event(y) changes sign (regula falsi), like
+  // WhenEvent in NDSolve. Returns the state there.
+  function locateEvent(f, y, h, event, fy, fNext) {
+    let lo = 0;
+    let hi = h;
+    let fLo = fy;
+    let fHi = fNext;
+    let at = null;
+    for (let it = 0; it < 40 && hi - lo > 1e-14 * h; it += 1) {
+      const tau = lo + (hi - lo) * (fLo / (fLo - fHi));
+      at = dopriStep(f, y, tau).next;
+      const fm = event(at);
+      if (Math.abs(fm) < 1e-13) break;
+      if (Math.sign(fm) === Math.sign(fLo)) {
+        lo = tau;
+        fLo = fm;
+      } else {
+        hi = tau;
+        fHi = fm;
+      }
+    }
+    return at || dopriStep(f, y, h).next;
+  }
+
+  // Integrates one geodesic from the event (t, r, θ, φ) with initial covector p0.
+  // State y = [t, r, θ, φ, p_r, p_θ, τ, λ].                                   [integrarGeodesica]
+  function integrateGeodesic(M, a, c, p0, event, minoLimit, rEscape, epsHorizon, maxSpatialStep) {
+    const rStop = horizonRadius(M, a) + epsHorizon * M;
+    const pt = -c.E;
+    const pph = c.L;
+    const rhs = (y) => {
+      const [, r, th, , pr, pth] = y;
+      const p = [pt, pr, pth, pph];
+      const g = inverseMetric(r, th, M, a);
+      const d = inverseMetricDerivatives(r, th, M, a);
+      const k = minoLimit * sigmaKerr(r, th, a);
+      const up = raise(g, p);
+      return [k * up[0], k * up[1], k * up[2], k * up[3], (-k * contract(p, d.dr, p)) / 2, (-k * contract(p, d.dth, p)) / 2, k, minoLimit];
+    };
+    // StopIntegration events, as WhenEvent conditions written as functions that change sign.
+    const events = [(y) => y[1] - rStop, (y) => rEscape - y[1], (y) => y[2] - 1e-7, (y) => Math.PI - 1e-7 - y[2]];
+
+    let y = [event[0], event[1], event[2], event[3], p0[1], p0[2], 0, 0];
+    const samples = [y];
+    const periapses = [];
+    let s = 0;
+    let h = MAX_STEP / 10;
+    let stopped = false;
+    for (let step = 0; step < MAX_STEPS && s < 1 && !stopped; step += 1) {
+      const f0 = rhs(y);
+      // Optional extra cap so drawn points are close together in the plane.
+      const speed = Math.hypot(f0[1], y[1] * f0[3]) || 1e-300;
+      h = Math.min(h, MAX_STEP, 1 - s, maxSpatialStep(y[1]) / speed);
+      const { next, err } = dopriStep(rhs, y, h);
+      if (err > 1) {
+        h *= Math.max(0.2, 0.9 * Math.pow(err, -0.2));
+        continue;
+      }
+      // Periapsis (dr/ds = λ_lim Σ g^{rr} p_r changes from − to +): for the status line only.
+      if (minoLimit * y[4] < 0 && minoLimit * next[4] >= 0) {
+        periapses.push(locateEvent(rhs, y, h, (q) => minoLimit * q[4], minoLimit * y[4], minoLimit * next[4])[3]);
+      }
+      const crossed = events.findIndex((ev) => ev(y) > 0 && ev(next) <= 0);
+      if (crossed >= 0) {
+        const ev = events[crossed];
+        y = locateEvent(rhs, y, h, ev, ev(y), ev(next));
+        samples.push(y);
+        stopped = true;
+        break;
+      }
+      y = next;
+      s += h;
+      samples.push(y);
+      h *= Math.min(5, Math.max(0.2, 0.9 * Math.pow(Math.max(err, 1e-10), -0.2)));
+    }
+
+    const rFinal = y[1];
+    const state =
+      rFinal <= rStop * (1 + 1e-7) ? "Horizonte" : rFinal >= rEscape * (1 - 1e-7) ? "Infinito" : "Fim do intervalo";
+    return { samples, state, rFinal, minoFinal: y[7], properTimeFinal: y[6], periapses, rStop };
+  }
+
+  // Largest turning point above the horizon for bound (E < μ) orbits, or null.
   function outerTurningPoint(R, rPlus, E) {
     const rHigh = Math.max(50, 4 / Math.max(1 - E * E, 1e-6));
     const n = 6000;
@@ -126,160 +360,114 @@
     return null;
   }
 
-  // Dormand–Prince 5(4) tableau (the system is autonomous, so the nodes c_i are not needed).
-  const DP_A = [
-    [],
-    [1 / 5],
-    [3 / 40, 9 / 40],
-    [44 / 45, -56 / 15, 32 / 9],
-    [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
-    [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
-    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
-  ];
-  const DP_B = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
-  const DP_E = [71 / 57600, 0, -71 / 16695, 71 / 1920, -17253 / 339200, 22 / 525, -1 / 40]; // b5 − b4
-  const RTOL = 1e-10;
-  const ATOL = 1e-10;
+  // ---------------------------------------- the widget's geodesic
 
-  // One Dormand–Prince step; returns the 5th-order solution and the scaled error norm.
-  function dopriStep(f, y, h) {
-    const k = [f(y)];
-    for (let s = 1; s < 7; s += 1) {
-      const ys = y.map((q, i) => q + h * DP_A[s].reduce((sum, aij, j) => sum + aij * k[j][i], 0));
-      k.push(f(ys));
-    }
-    const next = y.map((q, i) => q + h * DP_B.reduce((sum, b, j) => sum + b * k[j][i], 0));
-    let err = 0;
-    for (let i = 0; i < y.length; i += 1) {
-      const e = h * DP_E.reduce((sum, c, j) => sum + c * k[j][i], 0);
-      const scale = ATOL + RTOL * Math.max(Math.abs(y[i]), Math.abs(next[i]));
-      err = Math.max(err, Math.abs(e) / scale);
-    }
-    return { next, err };
-  }
-
-  // Integrates one geodesic from Hamilton's equations.
+  // Builds the initial event and covector from the widget's E, L (or b), integrates with
+  // integrateGeodesic and classifies the result like verificarPorIntegracao: Horizonte;
+  // Infinito when no turning point lies beyond; otherwise Ligada (bound).
   function geodesic(s, startRadius) {
+    const M = 1;
     const a = s.a;
-    const rPlus = horizons(a).plus;
-    const g = s.mode === "null" ? { a, E: 1, L: s.b, mu2: 0 } : { a, E: s.E, L: s.L, mu2: 1 };
-    const R = radialFunction(g);
-    const f = (y) => hamiltonRates(g, y);
+    const type = s.mode === "null" ? "null" : "timelike";
+    const E = s.mode === "null" ? 1 : s.E;
+    const L = s.mode === "null" ? s.b : s.L;
+    const mu2 = normalization(type);
+    const rPlus = horizonRadius(M, a);
+    const R = (r) => radialPotential(r, M, a, E, L, 0, mu2);
+    const th0 = Math.PI / 2;
 
-    let r;
+    const bound = mu2 === 1 && E < 1;
+    let r0;
     let pr;
-    let phi;
-    let bound = false;
-    if (g.mu2 === 1 && g.E < 1) {
-      // Bound orbit: start at rest radially at the apoapsis (R = 0, so p_r = P/Δ = K/P).
-      bound = true;
-      r = outerTurningPoint(R, rPlus, g.E);
-      if (r === null) return { points: [], fate: "forbidden" };
-      pr = ingoingMomentum(g, r, 0);
-      phi = 0;
+    if (bound) {
+      // Start at rest radially at the apoapsis (R = 0, so p_r = 0).
+      r0 = outerTurningPoint(R, rPlus, E);
+      if (r0 === null) return { points: [], fate: "forbidden" };
+      pr = 0;
     } else {
-      r = startRadius;
-      if (R(r) < 0) return { points: [], fate: "far" };
-      pr = ingoingMomentum(g, r, R(r));
-      // Place the start so that the initial velocity points along −x (horizontal, leftwards).
-      const [dr, dphi] = f([r, 0, pr]);
-      phi = Math.atan2(r * dphi, -dr);
+      r0 = startRadius;
+      if (R(r0) < 0) return { points: [], fate: "far" };
+      // Ingoing p_r from the mass shell: g^{rr} p_r² = −μ² − (g^{tt}E² − 2g^{tφ}EL + g^{φφ}L²).
+      const g = inverseMetric(r0, th0, M, a);
+      const rest = mu2 + g[0][0] * E * E - 2 * g[0][3] * E * L + g[3][3] * L * L;
+      pr = -Math.sqrt(Math.max(0, -rest / g[1][1]));
+    }
+    // criarCovetor recovers p_t = −E as the future-directed root; keep the slider's E if the
+    // start lies in the ergoregion, where two future-directed roots can exist.
+    let p0 = createCovector(type, pr, 0, L, r0, th0, M, a);
+    if (!p0 || Math.abs(p0[0] + E) > 1e-8 * Math.max(1, E)) p0 = [-E, pr, 0, L];
+    const constants = constantsOfMotion(p0, type, r0, th0, M, a);
+    if (constants.ut <= 0) return { points: [], fate: "forbidden" };
+
+    // Start so that the initial velocity points along −x (horizontal, leftwards).
+    let phi0 = 0;
+    if (!bound) {
+      const g = inverseMetric(r0, th0, M, a);
+      const up = raise(g, p0);
+      phi0 = Math.atan2(r0 * up[3], -up[1]);
+    }
+    const event = [0, r0, th0, phi0];
+    const rEsc = escapeRadius(constants, M, a, r0);
+    const spatialStep = (r) => 0.03 * Math.max(r, 1);
+
+    // As in the Wolfram tracker: lengthen the Mino interval ×4 (up to 300/M) while an
+    // unbound orbit has neither reached the horizon nor escaped.
+    let limit = s.mino;
+    let run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
+    while (!bound && run.state === "Fim do intervalo" && limit < 300) {
+      limit *= 4;
+      run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
     }
 
-    let y = [r, phi, pr];
-    const points = [[r * Math.cos(phi), r * Math.sin(phi)]];
-    const phi0 = phi;
-    const escapeRadius = Math.max(startRadius, r) + 1;
-    const shell = -g.mu2 / 2;
-    let constraint = Math.abs(hamiltonian(g, r, pr) - shell);
-    let rMin = r;
-    let rMax = r;
+    // Diagnostics: mass shell −g^{μν}p_μp_ν = μ², relative to the scale Σ|p_μ p_ν g^{μν}| as in
+    // configurarQuebra (near r₊ the individual terms are huge), and equatorial deviation |θ − π/2|.
+    let normError = 0;
+    let thetaDeviation = 0;
+    const points = [];
+    let rMin = Infinity;
+    let rMax = 0;
     let heading = null;
     let turning = 0;
-    const periapses = [];
-    let fate = bound ? "bound" : "whirl";
-    let h = 1e-3 * r;
-    // Photons near b_c whirl around the unstable photon orbit; count those turns.
-    const rPhoton = g.mu2 === 0 ? photonOrbit(a, g.L >= 0 ? 1 : -1) : null;
+    const rPhoton = mu2 === 0 ? photonOrbit(a, L >= 0 ? 1 : -1) : null;
     let whirlTurns = 0;
-
-    for (let step = 0; step < MAX_STEPS; step += 1) {
-      // Cap the step so that consecutive drawn points are at most ~3% of r apart.
-      const [dr, dphi] = f(y);
-      const speed = Math.hypot(dr, y[0] * dphi) || 1e-12;
-      h = Math.min(h, (0.03 * Math.max(y[0], 1)) / speed);
-      const { next, err } = dopriStep(f, y, h);
-      if (err > 1) {
-        h *= Math.max(0.2, 0.9 * Math.pow(err, -0.2));
-        continue;
-      }
-      const drNext = f(next)[0];
-
-      // Periapsis: dr/dλ changes sign from − to +. Locate it inside the step by regula falsi
-      // on the step length, so the periapsis advance is accurate to the integrator tolerance.
-      if (dr < 0 && drNext >= 0) {
-        let lo = 0;
-        let hi = h;
-        let fLo = dr;
-        let fHi = drNext;
-        let at = next;
-        for (let it = 0; it < 30 && hi - lo > 1e-13 * h; it += 1) {
-          const tau = lo + (hi - lo) * (fLo / (fLo - fHi));
-          at = dopriStep(f, y, tau).next;
-          const fm = f(at)[0];
-          if (Math.abs(fm) < 1e-14) break;
-          if (fm < 0) {
-            lo = tau;
-            fLo = fm;
-          } else {
-            hi = tau;
-            fHi = fm;
-          }
+    run.samples.forEach((q, k) => {
+      const [, r, th, ph, qr, qth] = q;
+      const p = [p0[0], qr, qth, p0[3]];
+      const g = inverseMetric(r, th, M, a);
+      let scale = 0;
+      for (let i = 0; i < 4; i += 1) for (let j = 0; j < 4; j += 1) scale += Math.abs(p[i] * p[j] * g[i][j]);
+      normError = Math.max(normError, Math.abs(-contract(p, g, p) - mu2) / Math.max(scale, 1e-30));
+      thetaDeviation = Math.max(thetaDeviation, Math.abs(th - Math.PI / 2));
+      const x = r * Math.sin(th) * Math.cos(ph);
+      const yy = r * Math.sin(th) * Math.sin(ph);
+      if (points.length) {
+        const [px, py] = points[points.length - 1];
+        const hd = Math.atan2(yy - py, x - px);
+        if (heading !== null) {
+          let dd = hd - heading;
+          dd -= 2 * Math.PI * Math.round(dd / (2 * Math.PI));
+          turning += dd;
         }
-        periapses.push(at[1]);
+        heading = hd;
+        if (rPhoton !== null && Math.abs(r - rPhoton) < 0.01 * rPhoton) whirlTurns += Math.abs(ph - run.samples[k - 1][3]) / (2 * Math.PI);
       }
-      if (next[0] <= rPlus) {
-        const t = (y[0] - rPlus) / (y[0] - next[0]);
-        const ph = y[1] + t * (next[1] - y[1]);
-        points.push([rPlus * Math.cos(ph), rPlus * Math.sin(ph)]);
-        fate = "captured";
-        break;
-      }
-
-      if (rPhoton !== null && Math.abs(next[0] - rPhoton) < 0.01 * rPhoton) whirlTurns += Math.abs(next[1] - y[1]) / (2 * Math.PI);
-      y = next;
-      constraint = Math.max(constraint, Math.abs(hamiltonian(g, y[0], y[2]) - shell));
-      const x = y[0] * Math.cos(y[1]);
-      const yy = y[0] * Math.sin(y[1]);
-      const [px, py] = points[points.length - 1];
-      const hd = Math.atan2(yy - py, x - px);
-      if (heading !== null) {
-        let d = hd - heading;
-        d -= 2 * Math.PI * Math.round(d / (2 * Math.PI));
-        turning += d;
-      }
-      heading = hd;
       points.push([x, yy]);
-      rMin = Math.min(rMin, y[0]);
-      rMax = Math.max(rMax, y[0]);
+      rMin = Math.min(rMin, r);
+      rMax = Math.max(rMax, r);
+    });
 
-      if (!bound && y[0] > escapeRadius && drNext > 0) {
-        fate = "escaped";
-        break;
-      }
-      if (Math.abs(y[1] - phi0) > 2 * Math.PI * MAX_TURNS) {
-        fate = bound ? "bound" : "whirl";
-        break;
-      }
-      h *= Math.min(5, Math.max(0.2, 0.9 * Math.pow(Math.max(err, 1e-10), -0.2)));
-    }
+    let fate;
+    if (run.state === "Horizonte") fate = "captured";
+    else if (run.state === "Infinito" && !hasOuterReturn(constants, M, a, run.rFinal)) fate = "escaped";
+    else fate = bound ? "bound" : "whirl";
 
     let advance = null;
-    if (periapses.length >= 2) {
-      const dphi = Math.abs(periapses[1] - periapses[0]);
-      advance = ((dphi - 2 * Math.PI) * 180) / Math.PI;
-    }
-    return { points, fate, bound, rMin, rMax, deflection: (Math.abs(turning) * 180) / Math.PI, advance, constraint, whirlTurns, rPhoton };
+    if (run.periapses.length >= 2) advance = ((Math.abs(run.periapses[1] - run.periapses[0]) - 2 * Math.PI) * 180) / Math.PI;
+
+    return {
+      points, fate, bound, rMin, rMax, advance, whirlTurns, rPhoton, constants, normError, thetaDeviation,
+      deflection: (Math.abs(turning) * 180) / Math.PI, minoLimit: limit, wolframState: run.state, rStop: run.rStop,
+    };
   }
 
   // ------------------------------------------------------------ drawing
@@ -536,13 +724,13 @@
     let msg;
     switch (result.fate) {
       case "captured":
-        msg = `${who} is captured: it crosses the event horizon r₊.`;
+        msg = `${who} is captured: it reaches r₊ + 10⁻³ M, where the integration stops.`;
         break;
       case "escaped":
         msg = `${who} is scattered: deflection ${fmt(result.deflection, 1)}°, closest approach r = ${fmt(result.rMin, 2)} M.`;
         break;
       case "whirl":
-        msg = `${who} whirls around the unstable circular orbit near r = ${fmt(result.rMin, 2)} M (drawing stopped after ${MAX_TURNS} turns).`;
+        msg = `${who} is still orbiting near r = ${fmt(result.rMin, 2)} M at the end of the Mino interval Mλ = ${fmt(result.minoLimit, 0)}.`;
         break;
       case "bound":
         msg =
@@ -558,10 +746,12 @@
         msg = "The orbit stays outside the plotted region.";
     }
     if (result.whirlTurns >= 1 && (result.fate === "captured" || result.fate === "escaped")) {
-      const end = result.fate === "captured" ? "crosses the event horizon r₊" : `escapes (deflection ${fmt(result.deflection, 1)}°)`;
+      const end = result.fate === "captured" ? "reaches the horizon" : `escapes (deflection ${fmt(result.deflection, 1)}°)`;
       msg = `${who} whirls ${fmt(result.whirlTurns, 1)} turns around the photon orbit r = ${fmt(result.rPhoton, 3)} M, then ${end}.`;
     }
-    if (Number.isFinite(result.constraint)) msg += ` Hamiltonian constraint kept to |H + μ²/2| ≤ ${result.constraint.toExponential(0)}.`;
+    if (Number.isFinite(result.normError)) {
+      msg += ` Checks: mass shell g^μν p_μ p_ν = −μ² to ${result.normError.toExponential(0)} (relative), max|θ − π/2| = ${result.thetaDeviation ? result.thetaDeviation.toExponential(0) : "0"}.`;
+    }
     $("kerr-status").textContent = msg;
     canvas.setAttribute("aria-label", `Kerr black hole with a/M = ${fmt(state.a)}. ${msg}`);
   }
@@ -604,6 +794,7 @@
   const setB = bindPair("b", 3);
   const setE = bindPair("E", 4);
   const setL = bindPair("L", 3);
+  bindPair("mino", 0);
   void setA;
 
   function setMode(mode) {
@@ -651,5 +842,10 @@
   setMode(state.mode);
 
   // Exposed for checking numbers from the browser console.
-  window.Kerr = { horizons, photonOrbit, criticalImpact, isco, circularOrbit, hamiltonian, hamiltonRates, geodesic, state };
+  window.Kerr = {
+    horizons, photonOrbit, criticalImpact, isco, circularOrbit, geodesic, state,
+    // Port of the Wolfram code (see the comment at the top of this file).
+    deltaKerr, sigmaKerr, horizonRadius, inverseMetric, inverseMetricDerivatives, createCovector,
+    radialPotential, constantsOfMotion, hasOuterReturn, escapeRadius, integrateGeodesic, realRoots,
+  };
 })();
