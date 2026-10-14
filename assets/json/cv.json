@@ -1,0 +1,383 @@
+[
+  {
+    "title": "General Information",
+    "type": "map",
+    "contents": [
+      { "name": "Full Name", "value": "Mário Raia Neto" },
+      { "name": "Position", "value": "Physicist · MSc student in Physics" },
+      { "name": "Affiliation", "value": "Department of Physics, Federal University of ABC (UFABC)" },
+      { "name": "Location", "value": "São Paulo, Brazil" },
+      {
+        "name": "Email",
+        "value": "<a href=\"mailto:m.raia@ufabc.edu.br\">m.raia@ufabc.edu.br</a> · <a href=\"mailto:mraianeto@gmail.com\">mraianeto@gmail.com</a>"
+      },
+      {
+        "name": "Profiles",
+        "links": [
+          { "name": "ORCID", "link": "https://orcid.org/0000-0002-6297-6549" },
+          { "name": "Google Scholar", "link": "https://scholar.google.com/citations?user=pOe63igAAAAJ" },
+          { "name": "GitHub", "link": "https://github.com/mraianeto" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Education",
+    "type": "time_table",
+    "contents": [
+      {
+        "title": "Master in Physics",
+        "institution": "Federal University of ABC (UFABC), São Paulo, Brazil",
+        "department": "Department of Physics",
+        "year": "2025 – present",
+        "description": ["Advisor: Prof. Maurício Richartz"]
+      },
+      {
+        "title": "Licenciatura in Physics",
+        "institution": "Cruzeiro do Sul University, São Paulo, Brazil",
+        "year": "2025 – present"
+      },
+      {
+        "title": "Bachelor in Physics",
+        "institution": "Federal University of São Carlos (UFSCar), São Carlos, Brazil",
+        "department": "Department of Physics",
+        "year": "2025",
+        "description": ["Advisor: Prof. Raphael Santarelli", "Undergraduate thesis: <em>Classical and Quantum Aspects of Black Holes</em>"]
+      }
+    ]
+  },
+  {
+    "title": "Distinguished Courses",
+    "type": "time_table",
+    "intro": "Full-semester subjects beyond the mandatory UFSCar BSc curriculum, taken during the BSc. In some of them I was required to produce reports, deliver one-time lectures, or give presentations in order to be graded.",
+    "contents": [
+      {
+        "title": "Numerical Simulations of Accretion Discs",
+        "institution": "Nicolaus Copernicus Astronomical Center, Polish Academy of Sciences",
+        "year": "2025",
+        "location": "Warsaw, Poland",
+        "description": [
+          "Professors: Miljenko Čemeljić and Debora Lančová",
+          "Report: <a href=\"/studies/\">Different magnetic field topologies in black hole MAD accretion disk simulations</a>"
+        ]
+      },
+      {
+        "title": "Introduction to Magnetohydrodynamics",
+        "institution": "Facultad de Ciencias Astronómicas y Geofísicas, Universidad Nacional de La Plata",
+        "year": "2025",
+        "location": "Argentina",
+        "description": ["Professors: Patricia Sallago and María Fernanda Montero", "Lecture: Magnetohydrodynamic waves"]
+      },
+      {
+        "title": "Relativity",
+        "institution": "Federal University of São Carlos (UFSCar)",
+        "year": "2023",
+        "description": ["Professor: Paulo Daniel Emmel"]
+      },
+      {
+        "title": "Fluid Dynamics",
+        "institution": "Federal University of São Carlos (UFSCar)",
+        "year": "2023",
+        "description": ["Professor: Vivaldo Leiria", "Presentation: Black Hole Analogues"]
+      },
+      {
+        "title": "Algorithms and Programming",
+        "institution": "Federal University of São Carlos (UFSCar)",
+        "year": "2023",
+        "description": ["Professor: Fabiano Cutigi Ferrari"]
+      },
+      {
+        "title": "Time Series Analysis with R",
+        "institution": "Federal University of São Carlos (UFSCar)",
+        "year": "2023",
+        "description": ["Professor: Andreza Palma"]
+      },
+      {
+        "title": "Foundations of General Relativity",
+        "institution": "Federal University of ABC (UFABC)",
+        "year": "2022",
+        "description": ["Professor: André Landulfo"]
+      },
+      {
+        "title": "Classical Field Theory",
+        "institution": "Federal University of ABC (UFABC)",
+        "year": "2022",
+        "description": ["Professor: Ricardo Pasko"]
+      },
+      {
+        "title": "Mathematical Methods of Relativity",
+        "institution": "State University of Campinas (UNICAMP)",
+        "year": "2021",
+        "description": ["Professor: João Paulo Pitelli"]
+      },
+      {
+        "title": "Differential Geometry",
+        "institution": "Federal University of Santa Catarina (UFSC)",
+        "year": "2021",
+        "description": ["Professor: Marianna Ravara Vago"]
+      }
+    ]
+  },
+  {
+    "title": "Advanced Courses",
+    "type": "time_table",
+    "contents": [
+      { "title": "Introduction to Group Theory", "institution": "State University of Rio de Janeiro (UERJ)", "year": "2022", "description": ["4th UERJ Graduate School on Physics"] },
+      { "title": "Introduction to Differential Forms", "institution": "University of São Paulo (USP)", "year": "2022", "description": ["Summer School on Mathematics"] },
+      { "title": "Geometry of Information", "institution": "University of São Paulo (USP)", "year": "2022", "description": ["Summer Program on Mathematics"] },
+      { "title": "Introduction to Mathematical Gauge Theory", "institution": "University of São Paulo (USP)", "year": "2021", "description": ["III Jayme Tiomno School"] },
+      { "title": "Algebraic Methods in Theoretical Physics", "institution": "University of São Paulo (USP)", "year": "2021", "description": ["III Jayme Tiomno School"] },
+      { "title": "Operator Algebra", "institution": "University of São Paulo (USP)", "year": "2019", "description": ["II Jayme Tiomno School"] },
+      { "title": "Variational Calculus", "institution": "University of São Paulo (USP)", "year": "2019", "description": ["II Jayme Tiomno School"] },
+      { "title": "Tensor Algebra", "institution": "University of São Paulo (USP)", "year": "2019", "description": ["II Jayme Tiomno School"] },
+      { "title": "Relativistic Quantum Mechanics", "institution": "University of São Paulo (USP)", "year": "2019", "description": ["II Jayme Tiomno School"] }
+    ]
+  },
+  {
+    "title": "Schools and Internships",
+    "type": "time_table",
+    "contents": [
+      { "title": "5th Summer International School on Gravity, Cosmology and Astrophysics", "institution": "Russian Gravitational Society", "year": "2024", "location": "Russia" },
+      { "title": "II School of Cosmology and Gravitation", "institution": "Brazilian Center for Research in Physics (CBPF)", "year": "2024", "location": "Brazil" },
+      { "title": "Summer Program on Mathematics", "institution": "ICMC – University of São Paulo", "year": "2023", "location": "Brazil" },
+      { "title": "IAstro Summer Internships Program", "institution": "Institute of Astrophysics and Space Sciences", "year": "2022", "location": "Portugal" },
+      { "title": "4th UERJ Graduate School on Physics", "institution": "State University of Rio de Janeiro (UERJ)", "year": "2022", "location": "Brazil" },
+      { "title": "Summer School on Mathematics", "institution": "ICMC – University of São Paulo", "year": "2022", "location": "Brazil" },
+      { "title": "Summer School on High Energy Physics", "institution": "IFT – UNESP – SPRACE", "year": "2021", "location": "Brazil" },
+      { "title": "III Jayme Tiomno School", "institution": "IF – University of São Paulo", "year": "2021", "location": "Brazil" },
+      { "title": "II Jayme Tiomno School", "institution": "IF – University of São Paulo", "year": "2019", "location": "Brazil" },
+      { "title": "5th INPE Advanced Course", "institution": "National Institute for Space Research (INPE)", "year": "2013", "location": "Brazil" }
+    ]
+  },
+  {
+    "title": "Miscellanea",
+    "type": "time_table",
+    "contents": [
+      {
+        "title": "III UERN Minicourses on Cosmology",
+        "institution": "State University of Rio Grande do Norte (UERN)",
+        "year": "2022",
+        "description": ["Minicourse: Inflation in the Primordial Universe"]
+      },
+      {
+        "title": "5th Journey of Physics",
+        "institution": "Federal Institute of Ceará (IF-Ceará)",
+        "year": "2021",
+        "description": ["One-week event with courses on general relativity, classical field theory, and Lagrangian and Hamiltonian dynamics"]
+      },
+      {
+        "title": "How to Prepare and Publish a Scientific Research Paper",
+        "institution": "Annual Meeting of the SBPC",
+        "year": "2020",
+        "description": ["Mini-course on scientific writing and paper publishing, during the 10-day meeting"]
+      },
+      { "title": "Introduction to LaTeX", "institution": "Federal University of São Carlos (UFSCar)", "year": "2016" },
+      { "title": "General Astrophysics", "institution": "National Observatory (ON)", "year": "2014" }
+    ]
+  },
+  {
+    "title": "Publications",
+    "type": "time_table",
+    "contents": [
+      { "subheading": "Refereed, international" },
+      {
+        "title": "A new solution for a generalized cosmological wormhole",
+        "year": "2023",
+        "maindescription": "D. Pérez and <u>M. Raia Neto</u>. <em>The European Physical Journal C</em> <b>83</b>, 1127 (2023).",
+        "linkitems": [
+          { "linkname": "DOI", "link": "https://doi.org/10.1140/epjc/s10052-023-12316-x" },
+          { "linkname": "arXiv", "link": "https://arxiv.org/abs/2312.07736" },
+          { "linkname": "PDF", "link": "/assets/pdf/cw.pdf" }
+        ]
+      },
+      {
+        "title": "The shadow of charged traversable wormholes",
+        "year": "2023",
+        "maindescription": "<u>M. Raia Neto</u>, D. Pérez and J. Pelle. <em>International Journal of Modern Physics D</em> <b>32</b>, 2250137 (2023).",
+        "linkitems": [
+          { "linkname": "DOI", "link": "https://doi.org/10.1142/S0218271822501371" },
+          { "linkname": "arXiv", "link": "https://arxiv.org/abs/2210.14106" },
+          { "linkname": "PDF", "link": "/assets/pdf/ctwh.pdf" }
+        ]
+      },
+      { "subheading": "Refereed, national" },
+      {
+        "title": "Rotating Spacetimes",
+        "year": "2022",
+        "maindescription": "<u>M. Raia Neto</u> and L. C. L. Botti. <em>Boletim da Sociedade Astronômica Brasileira</em> <b>33</b> (2022).",
+        "linkitems": [
+          { "linkname": "HTML", "link": "https://sab-astro.org.br/sab/publicacoes/boletim-da-sab-vol-33/" },
+          { "linkname": "PDF", "link": "/assets/pdf/sab2022.pdf" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Research Projects",
+    "type": "time_table",
+    "contents": [
+      {
+        "title": "Relativistic Magnetohydrodynamics, the Blandford–Znajek Mechanism and an Introduction to Numerical Relativity",
+        "year": "2024 – present",
+        "maindescription": "Study of the formalism of general relativistic magnetohydrodynamics (GRMHD), the physics of Shakura–Sunyaev and Novikov–Thorne accretion disks, the Blandford–Znajek and Blandford–Payne mechanisms, and an introduction to numerical relativity with GRMHD torus setups in the iharm3d and Athena++ codes.",
+        "description": ["Advisor: Javier Fernando Caro", "Voluntary research"]
+      },
+      {
+        "title": "Geometry of Black Holes",
+        "year": "2023 – 2024",
+        "maindescription": "Study of the differential geometry, topology and physics of Kerr spacetime.",
+        "description": ["Advisor: José Nazareno", "Voluntary research"]
+      },
+      {
+        "title": "Introduction to Fiber Bundles: Geometry and Physics",
+        "year": "2022 – 2023",
+        "maindescription": "A study of the differential geometry of the standard model of particle physics.",
+        "description": ["Advisor: José Nazareno", "Voluntary research"]
+      },
+      {
+        "title": "Cosmological Tests: How to Know the Evolution of the Universe",
+        "institution": "IAstro Summer Internships Program, Institute of Astrophysics and Space Sciences",
+        "year": "2022",
+        "location": "Portugal",
+        "maindescription": "Short-term project on the standard cosmological model (ΛCDM) and on fitting supernova data with the emcee package.",
+        "description": ["Advisor: António C. da Silva"]
+      },
+      {
+        "title": "Introduction to Black Hole Physics and to some Exotic Solutions of General Relativity",
+        "year": "2019 – present",
+        "maindescription": "Three goals: (1) the standard black hole solutions of general relativity, geodesic motion around them and black hole shadows; (2) Morris–Thorne wormholes, warp drive spacetimes and their energy conditions; (3) introductory black hole astrophysics and data analysis of the light curves of 3C 273, M87*, OJ 287 and Sgr A*.",
+        "description": ["Advisor: Luiz Claudio Lima Botti", "Funded by CNPq"]
+      },
+      {
+        "title": "Observation and Data Collection of Gravitational Lenses using the Itapetinga Radio Telescope",
+        "year": "2014 – 2016",
+        "maindescription": "Gravitational lensing with observational data from the Itapetinga Radio Observatory (Pierre Kaufmann Radio Observatory, ROPK), and an analysis of the source PKS 1830.",
+        "description": ["Advisor: Luiz Claudio Lima Botti", "Funded by CNPq"]
+      }
+    ]
+  },
+  {
+    "title": "Funding",
+    "type": "time_table",
+    "contents": [
+      {
+        "title": "Scientific Initiation Grant",
+        "institution": "National Council for Scientific and Technological Development (CNPq)",
+        "year": "2019 – present",
+        "description": ["Project: Introduction to Black Hole Physics and to some Exotic Solutions of General Relativity"]
+      },
+      {
+        "title": "Scientific Initiation Grant",
+        "institution": "National Council for Scientific and Technological Development (CNPq)",
+        "year": "2014 – 2016",
+        "description": ["Project: Observation and Data Collection of Gravitational Lenses using the Itapetinga Radio Telescope"]
+      }
+    ]
+  },
+  {
+    "title": "Teaching Experience",
+    "type": "time_table",
+    "contents": [
+      { "subheading": "Teaching assistant" },
+      {
+        "title": "Relativity",
+        "institution": "Federal University of São Carlos (UFSCar), São Carlos, Brazil",
+        "year": "2022",
+        "description": ["Professor: Paulo Daniel Emmel"]
+      },
+      { "subheading": "Workshops" },
+      { "title": "Theoretical Aspects of Kerr Black Holes", "institution": "VII UNIFESP Workshop of Cosmology and Astrophysics", "year": "2022" },
+      { "title": "Black Hole Shadows", "institution": "I Workshop of Astronomy and Astrophysics of Paraná", "year": "2022" },
+      { "subheading": "Lectures" },
+      {
+        "title": "Magnetohydrodynamic Waves",
+        "institution": "Facultad de Ciencias Astronómicas y Geofísicas, Universidad Nacional de La Plata",
+        "year": "2025",
+        "location": "Argentina",
+        "description": ["Full lecture in the course Introduction to Magnetohydrodynamics"]
+      },
+      {
+        "title": "UFSCar Journal Club on Physics",
+        "institution": "Federal University of São Carlos (UFSCar), São Carlos, Brazil",
+        "year": "2020 – present",
+        "description": [
+          {
+            "title": "Lectures given:",
+            "contents": [
+              "The geometry of rotating black holes I",
+              "The geometry of rotating black holes II",
+              "The first and the second law of black hole thermodynamics",
+              "Black hole mechanics and Komar integrals",
+              "Schwarzschild interior solution, TOV equation, and Buchdahl’s theorem",
+              "Causal structure of spacetime and Penrose diagrams",
+              "Basic GRMHD equations and accretion disks",
+              "Blandford–Znajek process"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Research Presentations and Scientific Events",
+    "type": "time_table",
+    "intro": "At every event below, except those under “other events”, I presented work and participated.",
+    "contents": [
+      { "subheading": "Posters" },
+      {
+        "title": "Black Hole Magnetospheres and the Blandford–Znajek Mechanism",
+        "year": "2025",
+        "description": ["3rd Brazilian Meeting of Girls and Women in Astrophysics, Cosmology, and Gravitation"]
+      },
+      { "title": "A new solution for a generalized cosmological wormhole", "year": "2024", "description": ["2nd School of Cosmology and Gravitation of CBPF"] },
+      { "title": "Introduction to Fiber Bundles: Physics and Geometry", "year": "2024", "description": ["30th Scientific Initiation Congress, UFSCar"] },
+      {
+        "title": "The Development of Manufacturing Processes and Testing of Metallic Membranes in Hypersonic Launches",
+        "year": "2024",
+        "description": ["National Congress of Mechanical Engineering"]
+      },
+      {
+        "title": "Stability of the Photon Ring of a Charged Traversable Wormhole",
+        "year": "2023",
+        "description": ["1st Astrophysics in the New Era of MM Astronomy International Conference"]
+      },
+      { "title": "Shadow of a Charged Wormhole", "year": "2022", "description": ["XXVIII Scientific Initiation Congress, UFSCar"] },
+      {
+        "title": "A study on the physics of some solutions of the Einstein field equations: black holes, wormholes and warp drives",
+        "year": "2021",
+        "description": ["VIII Brazilian Symposium on Physics and Astronomy"]
+      },
+      {
+        "title": "Introduction to Black Hole Physics and to Some Exotic Solutions of General Relativity",
+        "year": "2019 – present",
+        "description": [
+          "SICINPE 2019, 2020, 2021, 2022, 2023 and 2024",
+          "Tenth Integrated Week of Undergraduate and Graduate Studies of the São Carlos Institute of Physics (2020)",
+          "27th International Symposium on Scientific and Technological Initiation of USP (2019)"
+        ]
+      },
+      {
+        "title": "Observation and Data Collection of Gravitational Lenses using the Itapetinga Radio Telescope",
+        "year": "2014 – 2016",
+        "description": ["SICINPE 2014, 2015 and 2016"]
+      },
+      { "subheading": "Contributed talks" },
+      { "title": "Introduction to Black Hole Physics", "year": "2020", "description": ["XVI Physics Week of UFSCar"] },
+      { "subheading": "Flash talks" },
+      {
+        "title": "An Introduction to Kerr Black Holes and to the Blandford–Znajek Mechanism",
+        "year": "2024",
+        "description": ["PLUTO Symposium 2024, University of Torino"]
+      },
+      { "subheading": "Other events" },
+      { "title": "Python for Finances", "year": "2022", "description": ["“Pequi Mecânico” Robotics Group"] },
+      { "title": "One-day Relativity Workshop", "year": "2019", "description": ["IFT – UNESP"] },
+      { "title": "XXXVIII Paulo Leal Ferreira Congress of Physics", "year": "2015", "description": ["IFT – UNESP"] }
+    ]
+  },
+  {
+    "title": "Scientific Societies",
+    "type": "list",
+    "contents": ["Brazilian Astronomical Society (SAB)"]
+  }
+]

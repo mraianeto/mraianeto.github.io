@@ -1,0 +1,976 @@
+/*******************************************************************************
+ * main.css: site stylesheet.
+ *
+ * Plain-CSS port of the al-folio theme (v0.16.3, https://github.com/alshedivat/al-folio),
+ * so the site looks like al-folio without Ruby/Jekyll. Load it after Bootstrap 4.6
+ * and MDB 4.20, as al-folio does.
+ *
+ * al-folio: Copyright (c) 2025 Maruan Al-Shedivat. MIT License: permission is granted
+ * to use, copy, modify and distribute it, provided this notice is kept. The software
+ * is provided "as is", without warranty of any kind.
+ *
+ * Sections: themes · layout · typography · navbar · profile · news · social ·
+ * footer · publications · cv · code · kerr geodesics widget.
+ ******************************************************************************/
+
+/* ---------------------------------------------------------------------------
+ * Themes (al-folio _themes.scss)
+ * ------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+  --global-bg-color: #ffffff;
+  --global-code-bg-color: rgba(181, 9, 172, 0.05);
+  --global-text-color: #000000;
+  --global-text-color-light: #828282;
+  --global-theme-color: #b509ac;
+  --global-hover-color: #b509ac;
+  --global-hover-text-color: #ffffff;
+  --global-footer-bg-color: #1c1c1d;
+  --global-footer-text-color: #e8e8e8;
+  --global-footer-link-color: #ffffff;
+  --global-divider-color: rgba(0, 0, 0, 0.1);
+  --global-card-bg-color: #ffffff;
+  --global-highlight-color: #b71c1c;
+
+  /* Kerr widget palette (light) */
+  --kerr-canvas-bg: #fafafa;
+  --kerr-grid: rgba(0, 0, 0, 0.06);
+  --kerr-horizon: #000000;
+  --kerr-horizon-edge: rgba(0, 0, 0, 0.55);
+  --kerr-ergo: rgba(181, 9, 172, 0.14);
+  --kerr-ergo-edge: rgba(181, 9, 172, 0.55);
+  --kerr-photon: #d18b00;
+  --kerr-isco: #009e73;
+  --kerr-capture: rgba(0, 0, 0, 0.06);
+  --kerr-capture-edge: rgba(0, 0, 0, 0.35);
+  --kerr-null-path: #e85d04;
+  --kerr-timelike-path: #0072b2;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --global-bg-color: #1c1c1d;
+  --global-code-bg-color: #2c3237;
+  --global-text-color: #e8e8e8;
+  --global-text-color-light: #828282;
+  --global-theme-color: #2698ba;
+  --global-hover-color: #2698ba;
+  --global-hover-text-color: #ffffff;
+  --global-footer-bg-color: #e8e8e8;
+  --global-footer-text-color: #1c1c1d;
+  --global-footer-link-color: #000000;
+  --global-divider-color: #424246;
+  --global-card-bg-color: #212529;
+  --global-highlight-color: #ff3636;
+
+  /* Kerr widget palette (dark) */
+  --kerr-canvas-bg: #161617;
+  --kerr-grid: rgba(255, 255, 255, 0.05);
+  --kerr-horizon: #000000;
+  --kerr-horizon-edge: rgba(255, 255, 255, 0.45);
+  --kerr-ergo: rgba(38, 152, 186, 0.2);
+  --kerr-ergo-edge: rgba(38, 152, 186, 0.75);
+  --kerr-photon: #ffd000;
+  --kerr-isco: #00e09d;
+  --kerr-capture: rgba(255, 255, 255, 0.06);
+  --kerr-capture-edge: rgba(255, 255, 255, 0.35);
+  --kerr-null-path: #f97316;
+  --kerr-timelike-path: #ff4f8b;
+}
+
+/* Theme toggle: show the icon of the current setting (system / dark / light). */
+#light-toggle-system,
+#light-toggle-dark,
+#light-toggle-light {
+  display: none;
+  padding-left: 10px;
+  padding-top: 12px;
+}
+html[data-theme-setting="system"] #light-toggle-system,
+html:not([data-theme-setting]) #light-toggle-system,
+html[data-theme-setting="dark"] #light-toggle-dark,
+html[data-theme-setting="light"] #light-toggle-light {
+  display: block;
+}
+#light-toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  vertical-align: -0.2em;
+}
+
+/* Images that exist in a light and a dark version. */
+.only-light {
+  display: block;
+}
+.only-dark {
+  display: none;
+}
+html[data-theme="dark"] .only-light {
+  display: none;
+}
+html[data-theme="dark"] .only-dark {
+  display: block;
+}
+
+/* Smooth colour change when the theme is toggled (al-folio transTheme). */
+html.transition,
+html.transition *,
+html.transition *:before,
+html.transition *:after {
+  transition: all 750ms !important;
+  transition-delay: 0 !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * Layout (al-folio _layout.scss, max_width: 930px, fixed navbar and footer)
+ * ------------------------------------------------------------------------- */
+
+body {
+  padding-bottom: 70px;
+  color: var(--global-text-color);
+  background-color: var(--global-bg-color);
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  scroll-margin-top: 66px;
+}
+
+body.fixed-top-nav {
+  padding-top: 57px;
+}
+
+.container {
+  max-width: 930px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Typography (al-folio _base.scss)
+ * ------------------------------------------------------------------------- */
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+em,
+div,
+li,
+span,
+strong {
+  color: var(--global-text-color);
+}
+
+hr {
+  border-top: 1px solid var(--global-divider-color);
+}
+
+table td,
+table th {
+  font-size: 1rem;
+  padding: 1px 1rem 1px 0;
+}
+
+table th {
+  font-weight: bold;
+}
+
+a,
+table.table a {
+  color: var(--global-theme-color);
+}
+
+a:hover,
+table.table a:hover {
+  color: var(--global-theme-color);
+  text-decoration: underline;
+}
+
+/* al-folio adds Bootstrap's .table-dark to every table in dark mode
+   (white text, transparent background); this rule has the same effect. */
+html[data-theme="dark"] table {
+  color: #fff;
+}
+
+.post-description {
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+}
+
+.post-description a {
+  color: inherit;
+}
+
+.post-description a:hover {
+  color: var(--global-theme-color);
+  text-decoration: none;
+}
+
+.post-title .float-right {
+  font-size: 2rem;
+}
+
+.post-title .float-right:hover {
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Navbar
+ * ------------------------------------------------------------------------- */
+
+.navbar {
+  box-shadow: none;
+  border-bottom: 1px solid var(--global-divider-color);
+  background-color: var(--global-bg-color);
+  opacity: 0.95;
+}
+
+.navbar.navbar-light a:hover {
+  text-decoration: none;
+}
+
+.navbar.navbar-light .navbar-brand {
+  color: var(--global-text-color);
+}
+
+.navbar.navbar-light .navbar-brand span {
+  color: inherit;
+}
+
+.navbar.navbar-light .navbar-nav .nav-item .nav-link {
+  color: var(--global-text-color);
+}
+
+.navbar.navbar-light .navbar-nav .nav-item .nav-link:hover {
+  color: var(--global-hover-color);
+}
+
+.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link {
+  background-color: inherit;
+  font-weight: bolder;
+  color: var(--global-theme-color);
+}
+
+.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link:hover {
+  color: var(--global-hover-color);
+}
+
+.navbar-toggler {
+  border: 0;
+  padding: 0.5rem 0.25rem;
+}
+
+.navbar-toggler:focus {
+  outline: none;
+}
+
+.navbar-toggler .icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--global-text-color);
+  border-radius: 1px;
+  margin-bottom: 4px;
+  transition: all 0.2s;
+}
+
+.navbar-toggler .top-bar {
+  transform: rotate(45deg);
+  transform-origin: 10% 10%;
+}
+
+.navbar-toggler .middle-bar {
+  opacity: 0;
+}
+
+.navbar-toggler .bottom-bar {
+  transform: rotate(-45deg);
+  transform-origin: 10% 90%;
+}
+
+.navbar-toggler.collapsed .top-bar,
+.navbar-toggler.collapsed .bottom-bar {
+  transform: rotate(0);
+}
+
+.navbar-toggler.collapsed .middle-bar {
+  opacity: 1;
+}
+
+#light-toggle {
+  padding: 0;
+  border: 0;
+  background-color: inherit;
+  color: var(--global-text-color);
+}
+
+#light-toggle:hover {
+  color: var(--global-hover-color);
+}
+
+#light-toggle:focus {
+  outline: none;
+}
+
+#light-toggle span {
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+ * Profile (about page)
+ * ------------------------------------------------------------------------- */
+
+.profile {
+  width: 100%;
+}
+
+.profile img {
+  width: 100%;
+}
+
+.profile .more-info {
+  margin-bottom: 5px;
+  margin-top: 5px;
+  font-family: monospace;
+}
+
+.profile .more-info p {
+  display: inline-block;
+  margin: 0;
+}
+
+.profile.float-right {
+  margin-left: 1rem;
+}
+
+@media (min-width: 576px) {
+  .profile {
+    width: 30%;
+  }
+
+  .profile .more-info p {
+    display: block;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * News
+ * ------------------------------------------------------------------------- */
+
+.news table th {
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Social (bottom of the about page)
+ * ------------------------------------------------------------------------- */
+
+.social {
+  text-align: center;
+}
+
+.social .contact-icons {
+  font-size: 4rem;
+}
+
+.social .contact-icons a {
+  margin: 0 0.4rem;
+}
+
+.social .contact-icons a i::before {
+  color: var(--global-text-color);
+  transition-property: all 0.2s ease-in-out;
+}
+
+.social .contact-icons a:hover {
+  text-decoration: none;
+}
+
+.social .contact-icons a:hover i::before {
+  color: var(--global-theme-color);
+}
+
+.social .contact-note {
+  font-size: 0.8rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Footer
+ * ------------------------------------------------------------------------- */
+
+footer.fixed-bottom {
+  background-color: var(--global-footer-bg-color);
+  font-size: 0.75rem;
+}
+
+footer.fixed-bottom .container {
+  color: var(--global-footer-text-color);
+  padding-top: 9px;
+  padding-bottom: 8px;
+  text-align: center;
+}
+
+footer.fixed-bottom span {
+  color: inherit;
+}
+
+footer.fixed-bottom a {
+  color: var(--global-footer-link-color);
+}
+
+footer.fixed-bottom a:hover {
+  color: var(--global-theme-color);
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Publications (al-folio bibliography)
+ * ------------------------------------------------------------------------- */
+
+.publications {
+  margin-top: 2rem;
+}
+
+.publications h2 {
+  margin-bottom: 1rem;
+}
+
+.publications h2.bibliography {
+  color: var(--global-divider-color);
+  border-top: 1px solid var(--global-divider-color);
+  padding-top: 1rem;
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.publications ol.bibliography {
+  list-style: none;
+  padding: 0;
+  margin-top: 0;
+}
+
+.publications ol.bibliography li {
+  margin-bottom: 1rem;
+}
+
+.publications ol.bibliography li .abbr {
+  margin-bottom: 0.5rem;
+}
+
+.publications ol.bibliography li .abbr abbr {
+  display: inline-block;
+  background-color: var(--global-theme-color);
+  margin-bottom: 0.5rem;
+  color: var(--global-card-bg-color) !important;
+  text-decoration: none;
+  border-bottom: 0;
+  cursor: default;
+}
+
+.publications ol.bibliography li .abbr abbr a,
+.publications ol.bibliography li .abbr abbr div {
+  color: white;
+}
+
+.publications ol.bibliography li .abbr abbr a:hover {
+  text-decoration: none;
+}
+
+.publications ol.bibliography li .abbr figure {
+  margin: 0;
+}
+
+.publications ol.bibliography li .preview {
+  width: 100%;
+}
+
+.publications ol.bibliography li .title {
+  font-weight: bolder;
+}
+
+.publications ol.bibliography li .author a {
+  border-bottom: 1px dashed var(--global-theme-color);
+}
+
+.publications ol.bibliography li .author a:hover {
+  border-bottom-style: solid;
+  text-decoration: none;
+}
+
+.publications ol.bibliography li .author > em {
+  border-bottom: 1px solid;
+  font-style: normal;
+}
+
+.publications ol.bibliography li .links a.btn {
+  color: var(--global-text-color);
+  border: 1px solid var(--global-text-color);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-left: 0;
+}
+
+.publications ol.bibliography li .links a.btn:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  text-decoration: none;
+}
+
+.publications ol.bibliography li .hidden {
+  font-size: 0.875rem;
+  max-height: 0px;
+  overflow: hidden;
+  text-align: justify;
+  transition: all 0.15s ease;
+}
+
+.publications ol.bibliography li .hidden p {
+  line-height: 1.4em;
+  margin: 10px;
+}
+
+.publications ol.bibliography li .hidden pre {
+  font-size: 1em;
+  line-height: 1.4em;
+  padding: 10px;
+}
+
+.publications ol.bibliography li .hidden.open {
+  max-height: 100em;
+  transition: all 0.15s ease;
+}
+
+.publications ol.bibliography li div.abstract.hidden {
+  border: dashed 1px var(--global-bg-color);
+}
+
+.publications ol.bibliography li div.abstract.hidden.open {
+  border-color: var(--global-text-color);
+}
+
+/* ---------------------------------------------------------------------------
+ * CV (al-folio _cv.scss and the .cv rules of _base.scss)
+ * ------------------------------------------------------------------------- */
+
+.card {
+  background-color: var(--global-card-bg-color);
+}
+
+.card .card-title {
+  color: var(--global-text-color);
+}
+
+.cv {
+  margin-bottom: 40px;
+}
+
+.cv .card {
+  background-color: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+}
+
+.cv .card .list-group-item {
+  background-color: inherit;
+  border-color: var(--global-divider-color);
+}
+
+.cv .card .list-group-item .badge {
+  color: var(--global-card-bg-color) !important;
+  background-color: var(--global-theme-color) !important;
+}
+
+.cv .card-intro {
+  font-size: 0.9rem;
+  color: var(--global-text-color-light);
+  margin-bottom: 0.5rem;
+}
+
+.cv .list-group-subheading {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--global-text-color-light);
+  padding-top: 1rem;
+}
+
+table.table-cv {
+  background-color: transparent !important;
+}
+
+table.table-cv td,
+table.table-cv th {
+  padding: 1px;
+}
+
+a.btncv {
+  color: var(--global-text-color) !important;
+  border: 1px solid var(--global-text-color) !important;
+  border-radius: 0.125rem;
+  padding: 0.25rem 1rem;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 0.7rem;
+  text-align: center;
+  vertical-align: middle;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+a.btncv:hover {
+  color: var(--global-theme-color) !important;
+  border-color: var(--global-theme-color) !important;
+  text-decoration: none !important;
+}
+
+p.location {
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+i.iconlocation {
+  color: var(--global-theme-color);
+  font-size: 0.8rem;
+}
+
+i.iconinstitution {
+  color: var(--global-theme-color);
+  font-size: 0.95rem;
+  margin-right: 0.3rem;
+}
+
+i.icondepartment {
+  color: var(--global-theme-color);
+  font-size: 0.8rem;
+  margin-right: 0.3rem;
+}
+
+table.institution {
+  margin-bottom: 1rem;
+}
+
+td.department {
+  font-size: 0.8rem;
+}
+
+div.container-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+div.container-link-button {
+  margin-right: 0.5rem;
+}
+
+a.anchor {
+  display: block;
+  position: relative;
+  top: -50px;
+  visibility: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+ * Code blocks (BibTeX boxes)
+ * ------------------------------------------------------------------------- */
+
+figure.highlight {
+  margin: 0 0 1rem;
+  overflow-x: auto;
+}
+
+pre {
+  color: var(--global-theme-color);
+  background-color: var(--global-code-bg-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  overflow-x: auto;
+  white-space: pre;
+  word-wrap: normal;
+}
+
+pre code {
+  background-color: transparent;
+  border-radius: 0;
+  margin-bottom: 0;
+  padding: 0;
+  white-space: inherit;
+}
+
+code {
+  color: var(--global-theme-color);
+  background-color: var(--global-code-bg-color);
+  border-radius: 3px;
+  padding: 3px 3px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+@media (max-width: 576px) {
+  pre {
+    font-size: 0.875rem;
+    padding: 8px 10px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Kerr geodesics widget (about page)
+ * ------------------------------------------------------------------------- */
+
+.kerr {
+  margin-bottom: 1rem;
+}
+
+.kerr .kerr-card {
+  border: 1px solid var(--global-divider-color);
+  border-radius: 0.25rem;
+  background-color: var(--global-card-bg-color);
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.kerr .kerr-stage {
+  flex: 1 1 340px;
+  min-width: 0;
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+.kerr .kerr-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.kerr canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.25rem;
+  border: 1px solid var(--global-divider-color);
+  background-color: var(--kerr-canvas-bg);
+  touch-action: none;
+}
+
+.kerr .kerr-zoom {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.kerr .kerr-zoom button {
+  width: 1.75rem;
+  height: 1.75rem;
+  line-height: 1;
+  padding: 0;
+  font-size: 1rem;
+  border-radius: 0.125rem;
+  border: 1px solid var(--global-divider-color);
+  background-color: var(--global-card-bg-color);
+  color: var(--global-text-color);
+  opacity: 0.85;
+}
+
+.kerr .kerr-zoom button:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+}
+
+.kerr .kerr-status {
+  min-height: 1.4em;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+  text-align: center;
+}
+
+.kerr .kerr-panel {
+  flex: 1 1 280px;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.kerr .kerr-modes {
+  display: flex;
+  margin-bottom: 0.75rem;
+}
+
+.kerr .kerr-modes button,
+.kerr .kerr-presets button {
+  color: var(--global-text-color);
+  background: transparent;
+  border: 1px solid var(--global-text-color);
+  border-radius: 0.125rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  padding: 0.25rem 0.9rem;
+  cursor: pointer;
+}
+
+.kerr .kerr-modes button + button {
+  margin-left: -1px;
+}
+
+.kerr .kerr-modes button:hover,
+.kerr .kerr-presets button:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+}
+
+.kerr .kerr-modes button.active {
+  background-color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  color: var(--global-hover-text-color);
+}
+
+.kerr .kerr-control {
+  margin-bottom: 0.6rem;
+}
+
+.kerr .kerr-control[hidden] {
+  display: none;
+}
+
+.kerr .kerr-control label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.kerr .kerr-control input[type="number"] {
+  width: 5.5rem;
+  border: 0;
+  border-bottom: 1px dashed var(--global-divider-color);
+  background: transparent;
+  color: var(--global-theme-color);
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+
+.kerr .kerr-control input[type="number"]::-webkit-outer-spin-button,
+.kerr .kerr-control input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.kerr .kerr-control input[type="range"] {
+  width: 100%;
+  accent-color: var(--global-theme-color);
+}
+
+.kerr .kerr-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.kerr .kerr-presets[hidden] {
+  display: none;
+}
+
+.kerr table.kerr-radii {
+  width: 100%;
+  margin: 0.25rem 0 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.kerr table.kerr-radii th,
+.kerr table.kerr-radii td {
+  font-size: 0.8rem;
+  padding: 2px 0.4rem 2px 0;
+  vertical-align: middle;
+}
+
+.kerr table.kerr-radii thead th {
+  font-weight: 400;
+  color: var(--global-text-color-light);
+  text-align: right;
+}
+
+.kerr table.kerr-radii td.num {
+  text-align: right;
+}
+
+.kerr table.kerr-radii th[scope="row"] {
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.kerr .swatch {
+  display: inline-block;
+  width: 1.4rem;
+  height: 0;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  border-top: 2px solid;
+}
+
+.kerr .swatch.fill {
+  height: 0.7rem;
+  width: 0.7rem;
+  border: 1px solid;
+  border-radius: 50%;
+  margin-left: 0.35rem;
+  margin-right: 0.75rem;
+}
+
+.kerr .swatch.horizon {
+  background: var(--kerr-horizon);
+  border-color: var(--kerr-horizon-edge);
+}
+
+.kerr .swatch.ergo {
+  background: var(--kerr-ergo);
+  border-color: var(--kerr-ergo-edge);
+}
+
+.kerr .swatch.photon {
+  border-top: 2px dashed var(--kerr-photon);
+}
+
+.kerr .swatch.isco {
+  border-top: 2px dashed var(--kerr-isco);
+}
+
+.kerr .swatch.capture {
+  height: 0.7rem;
+  border: 1px dashed var(--kerr-capture-edge);
+  background: var(--kerr-capture);
+}
+
+.kerr .swatch.path-null {
+  border-top-color: var(--kerr-null-path);
+  border-top-width: 3px;
+}
+
+.kerr .swatch.path-timelike {
+  border-top-color: var(--kerr-timelike-path);
+  border-top-width: 3px;
+}
+
+.kerr .kerr-note {
+  font-size: 0.75rem;
+  color: var(--global-text-color-light);
+  margin: 0.5rem 0 0;
+  text-align: left;
+}
