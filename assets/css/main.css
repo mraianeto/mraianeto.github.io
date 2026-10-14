@@ -809,9 +809,66 @@ code {
   font-size: 0.875rem;
 }
 
+.kerr .kerr-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
 .kerr .kerr-modes {
   display: flex;
-  margin-bottom: 0.75rem;
+}
+
+.kerr .kerr-tabs {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid var(--global-divider-color);
+  margin: 0.25rem 0 0.75rem;
+}
+
+.kerr .kerr-tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.3rem 0;
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+  cursor: pointer;
+}
+
+.kerr .kerr-tabs button:hover {
+  color: var(--global-hover-color);
+}
+
+.kerr .kerr-tabs button.active {
+  color: var(--global-theme-color);
+  border-bottom-color: var(--global-theme-color);
+  font-weight: 500;
+}
+
+.kerr .kerr-tabs button:focus {
+  outline: none;
+}
+
+.kerr .kerr-tabs button:focus-visible {
+  outline: 2px solid var(--global-divider-color);
+}
+
+.kerr .kerr-subhead {
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.kerr [data-tab-panel][hidden] {
+  display: none;
+}
+
+.kerr table.kerr-derived th[scope="row"] {
+  white-space: normal;
 }
 
 .kerr .kerr-modes button,

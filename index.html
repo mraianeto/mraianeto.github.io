@@ -138,9 +138,15 @@
               </div>
 
               <div class="kerr-panel">
-                <div class="kerr-modes" role="group" aria-label="Type of geodesic">
-                  <button type="button" data-mode="null" aria-pressed="false">null</button>
-                  <button type="button" data-mode="timelike" class="active" aria-pressed="true">timelike</button>
+                <div class="kerr-toolbar">
+                  <div class="kerr-modes" role="group" aria-label="Type of geodesic">
+                    <button type="button" data-mode="null" aria-pressed="false">null</button>
+                    <button type="button" data-mode="timelike" class="active" aria-pressed="true">timelike</button>
+                  </div>
+                  <div class="kerr-modes kerr-direction" role="group" aria-label="Direction of integration in Mino time">
+                    <button type="button" data-direction="1" class="active" aria-pressed="true" title="Integrate to the future (λ > 0)">forward</button>
+                    <button type="button" data-direction="-1" aria-pressed="false" title="Integrate to the past (λ < 0)">backward</button>
+                  </div>
                 </div>
 
                 <div class="kerr-control">
@@ -148,31 +154,76 @@
                   <input type="range" id="kerr-a" min="0" max="0.999" step="0.001">
                 </div>
 
-                <div class="kerr-control">
-                  <label for="kerr-mino"><span>Mino time \(M\lambda_{\max}\)</span><input type="number" id="kerr-mino-num" min="5" max="300" step="1" aria-label="Mino time M lambda max"></label>
-                  <input type="range" id="kerr-mino" min="5" max="300" step="1">
+                <div class="kerr-tabs" role="tablist" aria-label="Initial data">
+                  <button type="button" role="tab" data-tab="constants" class="active" aria-selected="true">energy &amp; angular momentum</button>
+                  <button type="button" role="tab" data-tab="initial" aria-selected="false">position &amp; momentum</button>
                 </div>
 
-                <div class="kerr-control" data-for="null" hidden>
-                  <label for="kerr-b"><span>impact parameter \(b = L/E\) \([M]\)</span><input type="number" id="kerr-b-num" min="-12" max="12" step="0.01" aria-label="impact parameter b"></label>
-                  <input type="range" id="kerr-b" min="-12" max="12" step="0.001">
-                </div>
-                <div class="kerr-presets" data-for="null" hidden>
-                  <button type="button" data-preset="critical" data-dir="pro">prograde photon orbit</button>
-                  <button type="button" data-preset="critical" data-dir="retro">retrograde photon orbit</button>
+                <!-- Tab 1: constants of motion; the start point is chosen automatically -->
+                <div data-tab-panel="constants">
+                  <div class="kerr-control" data-for="null" hidden>
+                    <label for="kerr-b"><span>impact parameter \(b = L/E\) \([M]\)</span><input type="number" id="kerr-b-num" min="-12" max="12" step="0.01" aria-label="impact parameter b"></label>
+                    <input type="range" id="kerr-b" min="-12" max="12" step="0.001">
+                  </div>
+                  <div class="kerr-presets" data-for="null" hidden>
+                    <button type="button" data-preset="critical" data-dir="pro">prograde photon orbit</button>
+                    <button type="button" data-preset="critical" data-dir="retro">retrograde photon orbit</button>
+                  </div>
+                  <div class="kerr-control" data-for="timelike">
+                    <label for="kerr-E"><span>energy \(E/\mu\)</span><input type="number" id="kerr-E-num" min="0.8" max="1.5" step="0.001" aria-label="energy E"></label>
+                    <input type="range" id="kerr-E" min="0.8" max="1.5" step="0.0001">
+                  </div>
+                  <div class="kerr-control" data-for="timelike">
+                    <label for="kerr-L"><span>angular momentum \(L/(\mu M)\)</span><input type="number" id="kerr-L-num" min="-10" max="10" step="0.01" aria-label="angular momentum L"></label>
+                    <input type="range" id="kerr-L" min="-10" max="10" step="0.001">
+                  </div>
+                  <div class="kerr-presets" data-for="timelike">
+                    <button type="button" data-preset="isco" data-dir="pro">prograde ISCO</button>
+                    <button type="button" data-preset="isco" data-dir="retro">retrograde ISCO</button>
+                  </div>
                 </div>
 
-                <div class="kerr-control" data-for="timelike">
-                  <label for="kerr-E"><span>energy \(E/\mu\)</span><input type="number" id="kerr-E-num" min="0.8" max="1.5" step="0.001" aria-label="energy E"></label>
-                  <input type="range" id="kerr-E" min="0.8" max="1.5" step="0.0001">
-                </div>
-                <div class="kerr-control" data-for="timelike">
-                  <label for="kerr-L"><span>angular momentum \(L/(\mu M)\)</span><input type="number" id="kerr-L-num" min="-10" max="10" step="0.01" aria-label="angular momentum L"></label>
-                  <input type="range" id="kerr-L" min="-10" max="10" step="0.001">
-                </div>
-                <div class="kerr-presets" data-for="timelike">
-                  <button type="button" data-preset="isco" data-dir="pro">prograde ISCO</button>
-                  <button type="button" data-preset="isco" data-dir="retro">retrograde ISCO</button>
+                <!-- Tab 2: initial four-position x^μ and spatial momentum p_i; p_t from the mass shell -->
+                <div data-tab-panel="initial" hidden>
+                  <p class="kerr-subhead">initial four-position \(x^\mu(0)\)</p>
+                  <div class="kerr-control">
+                    <label for="kerr-t0"><span>\(t_0/M\)</span><input type="number" id="kerr-t0-num" min="-100" max="100" step="0.1" aria-label="initial t"></label>
+                    <input type="range" id="kerr-t0" min="-100" max="100" step="0.1">
+                  </div>
+                  <div class="kerr-control">
+                    <label for="kerr-r0"><span>\(r_0/M\)</span><input type="number" id="kerr-r0-num" min="1" max="30" step="0.001" aria-label="initial r"></label>
+                    <input type="range" id="kerr-r0" min="1" max="30" step="0.001">
+                  </div>
+                  <div class="kerr-control">
+                    <label for="kerr-th0"><span>\(\theta_0\) (degrees)</span><input type="number" id="kerr-th0-num" min="1" max="179" step="0.1" aria-label="initial theta in degrees"></label>
+                    <input type="range" id="kerr-th0" min="1" max="179" step="0.1">
+                  </div>
+                  <div class="kerr-control">
+                    <label for="kerr-ph0"><span>\(\varphi_0\) (degrees)</span><input type="number" id="kerr-ph0-num" min="0" max="360" step="0.1" aria-label="initial phi in degrees"></label>
+                    <input type="range" id="kerr-ph0" min="0" max="360" step="0.1">
+                  </div>
+                  <p class="kerr-subhead">initial momentum \(p_\mu(0)\) (covariant; \(u_\mu\) for particles, \(k_\mu\) for photons)</p>
+                  <div class="kerr-control">
+                    <label for="kerr-pr"><span>\(p_r\)</span><input type="number" id="kerr-pr-num" min="-10" max="10" step="0.001" aria-label="initial p_r"></label>
+                    <input type="range" id="kerr-pr" min="-10" max="10" step="0.001">
+                  </div>
+                  <div class="kerr-control">
+                    <label for="kerr-pth"><span>\(p_\theta/M\)</span><input type="number" id="kerr-pth-num" min="-10" max="10" step="0.001" aria-label="initial p_theta"></label>
+                    <input type="range" id="kerr-pth" min="-10" max="10" step="0.001">
+                  </div>
+                  <div class="kerr-control">
+                    <label for="kerr-pph"><span>\(p_\varphi/M\)</span><input type="number" id="kerr-pph-num" min="-10" max="10" step="0.001" aria-label="initial p_phi"></label>
+                    <input type="range" id="kerr-pph" min="-10" max="10" step="0.001">
+                  </div>
+                  <table class="kerr-radii kerr-derived">
+                    <tbody>
+                      <tr><th scope="row">\(p_t\) from \(g^{\mu\nu}p_\mu p_\nu = -\mu^2\) (future root)</th><td class="num" id="kerr-out-pt"></td></tr>
+                      <tr><th scope="row">energy \(E = -p_t\)</th><td class="num" id="kerr-out-E"></td></tr>
+                      <tr><th scope="row">angular momentum \(L = p_\varphi\)</th><td class="num" id="kerr-out-L"></td></tr>
+                      <tr><th scope="row">Carter constant \(Q\)</th><td class="num" id="kerr-out-Q"></td></tr>
+                      <tr><th scope="row">\(t/M\) at the end</th><td class="num" id="kerr-out-t"></td></tr>
+                    </tbody>
+                  </table>
                 </div>
 
                 <table class="kerr-radii">
@@ -229,8 +280,8 @@
                 <p class="kerr-note">
                   Equatorial plane \(\theta = \pi/2\) seen from above; the hole spins counter-clockwise and \(G = c = 1\).
                   Rays arrive from the right, \(b &gt; 0\) is prograde, and the shaded band between the two critical \(b_{\rm c}\) is captured: the Kerr shadow is not symmetric.
-                  Short dashes: photon orbits; long dashes: ISCOs (prograde is always the inner circle). Hamilton's equations for \(H = \tfrac12 g^{\mu\nu}p_\mu p_\nu\) in Boyer–Lindquist coordinates, integrated in Mino time \(d\tau = \Sigma\, d\lambda\) up to \(M\lambda_{\max}\); the integration stops at \(r_+ + 10^{-3}M\), where these coordinates become singular.
-                  Bound orbits (\(E &lt; \mu\)) start at apoapsis.
+                  Short dashes: photon orbits; long dashes: ISCOs (prograde is always the inner circle). Hamilton's equations for \(H = \tfrac12 g^{\mu\nu}p_\mu p_\nu\) in Boyer–Lindquist coordinates, integrated forward or backward in Mino time \(d\tau = \Sigma\, d\lambda\); the integration stops at \(r_+ + 10^{-3}M\), where these coordinates become singular.
+                  In the first tab, bound orbits (\(E &lt; \mu\)) start at apoapsis; in the second, off-equator data are drawn projected on the equatorial plane.
                 </p>
               </div>
             </div>
