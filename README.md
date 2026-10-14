@@ -50,7 +50,7 @@ python3 -m http.server 8000
 
 ## Kerr geodesics widget
 
-Equatorial geodesics of the Kerr metric (G = c = M = 1), integrated with RK4 in Mino time from the exact radial potential R(r). Prograde and retrograde photon orbits, ISCOs (Bardeen, Press & Teukolsky 1972), critical impact parameters and the asymmetric capture band are computed in closed form. The path is drawn in Boyer–Lindquist r and ingoing Kerr azimuth, which is regular at the horizon. Bound timelike orbits (E < μ) start at their apoapsis. `window.Kerr` exposes the functions in the browser console.
+Equatorial geodesics of the Kerr metric (G = c = M = 1) from Hamilton's equations for H = ½ g^{μν} p_μ p_ν, written in ingoing Kerr coordinates so they are regular at the horizon, and integrated with an adaptive Dormand–Prince 5(4) scheme (tolerance 1e-10). The mass-shell constraint H = −μ²/2 is monitored and shown under the plot. Prograde and retrograde photon orbits, ISCOs (Bardeen, Press & Teukolsky 1972), critical impact parameters and the asymmetric capture band are computed in closed form. Bound timelike orbits (E < μ) start at their apoapsis. `window.Kerr` exposes the functions in the browser console.
 
 ## Credits
 

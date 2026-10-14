@@ -1,16 +1,22 @@
 // Equatorial geodesics of a Kerr black hole, drawn on the about page.
 //
 // Units G = c = M = 1. The hole spins about +z, i.e. counter-clockwise on screen.
-// Orbits stay in the equatorial plane θ = π/2, which is a reflection-symmetry plane of Kerr.
-// Conserved quantities: energy E and axial angular momentum L (per unit rest mass μ for
-// timelike orbits; for photons only b = L/E matters, so E = 1). L > 0 is prograde.
+// Orbits stay in the equatorial plane θ = π/2: ∂H/∂θ vanishes there by reflection symmetry,
+// so p_θ = 0 is preserved. E = −p_v and L = p_φ are conserved (per unit rest mass for
+// timelike orbits, μ = 1; for photons only b = L/E matters, so E = 1). L > 0 is prograde.
 //
-// With Mino time λ (dτ = r² dλ on the equator) the radial equation is polynomial:
-//   (dr/dλ)² = R(r) = [E(r²+a²) − aL]² − Δ[μ²r² + (L − aE)²],   Δ = r² − 2r + a²
-//   d²r/dλ²  = R'(r)/2
-// and the azimuth is integrated in ingoing Kerr coordinates, dφ̃ = dφ + (a/Δ) dr:
-//   dφ̃/dλ = (L − aE) + a(P + dr/dλ)/Δ,   P = E(r²+a²) − aL,
-// which is regular at the horizon (Boyer–Lindquist φ winds infinitely there).
+// Hamiltonian method: H = ½ g^{μν} p_μ p_ν with the inverse Kerr metric in ingoing Kerr
+// coordinates (v, r, θ, φ̃), dv = dt + (r²+a²)/Δ dr, dφ̃ = dφ + a/Δ dr, which is regular at
+// the horizon. On the equator (Σ = r²):
+//   g^{vv} = a²/r²,  g^{vr} = (r²+a²)/r²,  g^{vφ} = a/r²,  g^{rr} = Δ/r²,  g^{rφ} = a/r²,  g^{φφ} = 1/r²
+// so, with P = E(r²+a²) − aL and Δ = r² − 2r + a²,
+//   H(r, p_r) = [(L − aE)² − 2P p_r + Δ p_r²] / (2r²)
+// and Hamilton's equations in the affine parameter λ (proper time for μ = 1) are
+//   dr/dλ   =  ∂H/∂p_r = (Δ p_r − P) / r²
+//   dφ̃/dλ  =  ∂H/∂p_φ = (L − aE + a p_r) / r²
+//   dp_r/dλ = −∂H/∂r   = N/r³ − ∂N/∂r / (2r²),   N = 2r²H,   ∂N/∂r = −4E r p_r + 2(r − 1) p_r²
+// with the mass-shell constraint H = −μ²/2 (μ = 1 timelike, 0 null), which the integrator monitors.
+// They are integrated with an adaptive Dormand–Prince 5(4) Runge–Kutta scheme.
 (function () {
   const canvas = document.getElementById("kerr-canvas");
   if (!canvas) return;
@@ -54,29 +60,47 @@
     };
   }
 
-  // Radial potential R(r) and R'(r) for given constants (mu2 = 1 timelike, 0 null).
-  function potential(g) {
+  // Radial function R(r) = P² − Δ[μ²r² + (L − aE)²], from H = −μ²/2 with p_r eliminated.
+  // Used only to place the initial point (turning points and initial p_r).
+  function radialFunction(g) {
     const { a, E, L, mu2 } = g;
     const c4 = E * E - mu2;
     const c3 = 2 * mu2;
     const c2 = a * a * c4 - L * L;
     const c1 = 2 * (L - a * E) * (L - a * E);
-    return {
-      R: (r) => r * (c1 + r * (c2 + r * (c3 + r * c4))),
-      dR: (r) => c1 + r * (2 * c2 + r * (3 * c3 + r * 4 * c4)),
-    };
+    return (r) => r * (c1 + r * (c2 + r * (c3 + r * c4)));
   }
 
-  function azimuthRate(g, r, v) {
+  // Hamiltonian H(r, p_r) on the equator in ingoing Kerr coordinates.
+  function hamiltonian(g, r, pr) {
+    const { a, E, L } = g;
+    const P = E * (r * r + a * a) - a * L;
+    const delta = r * r - 2 * r + a * a;
+    return ((L - a * E) * (L - a * E) - 2 * P * pr + delta * pr * pr) / (2 * r * r);
+  }
+
+  // Hamilton's equations: d/dλ of the state [r, φ̃, p_r].
+  function hamiltonRates(g, y) {
+    const { a, E, L } = g;
+    const [r, , pr] = y;
+    const r2 = r * r;
+    const P = E * (r2 + a * a) - a * L;
+    const delta = r2 - 2 * r + a * a;
+    const N = (L - a * E) * (L - a * E) - 2 * P * pr + delta * pr * pr; // N = 2r²H
+    const dNdr = -4 * E * r * pr + (2 * r - 2) * pr * pr; //               ∂N/∂r at fixed p_r
+    return [
+      (delta * pr - P) / r2, //                 dr/dλ   =  ∂H/∂p_r
+      (L - a * E + a * pr) / r2, //             dφ̃/dλ  =  ∂H/∂p_φ
+      -(dNdr / (2 * r2) - N / (r2 * r)), //     dp_r/dλ = −∂H/∂r,  H = N/(2r²)
+    ];
+  }
+
+  // Ingoing solution of H = −μ²/2 for p_r:  Δp_r² − 2P p_r + K = 0  →  p_r = K/(P + √R).
+  function ingoingMomentum(g, r, R) {
     const { a, E, L, mu2 } = g;
     const P = E * (r * r + a * a) - a * L;
-    if (v < 0) {
-      // (P + v)/Δ = K/(P − v) because P² − v² = ΔK; finite as Δ → 0.
-      const K = mu2 * r * r + (L - a * E) * (L - a * E);
-      return L - a * E + (a * K) / (P - v);
-    }
-    const delta = r * r - 2 * r + a * a;
-    return L - a * E + (a * (P + v)) / delta;
+    const K = mu2 * r * r + (L - a * E) * (L - a * E);
+    return K / (P + Math.sqrt(Math.max(R, 0)));
   }
 
   // Largest turning point above the horizon for bound (E < 1) orbits, or null.
@@ -102,69 +126,131 @@
     return null;
   }
 
-  // Integrates one geodesic. Returns { points: [[x, y], ...], fate, info }.
+  // Dormand–Prince 5(4) tableau (the system is autonomous, so the nodes c_i are not needed).
+  const DP_A = [
+    [],
+    [1 / 5],
+    [3 / 40, 9 / 40],
+    [44 / 45, -56 / 15, 32 / 9],
+    [19372 / 6561, -25360 / 2187, 64448 / 6561, -212 / 729],
+    [9017 / 3168, -355 / 33, 46732 / 5247, 49 / 176, -5103 / 18656],
+    [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84],
+  ];
+  const DP_B = [35 / 384, 0, 500 / 1113, 125 / 192, -2187 / 6784, 11 / 84, 0];
+  const DP_E = [71 / 57600, 0, -71 / 16695, 71 / 1920, -17253 / 339200, 22 / 525, -1 / 40]; // b5 − b4
+  const RTOL = 1e-10;
+  const ATOL = 1e-10;
+
+  // One Dormand–Prince step; returns the 5th-order solution and the scaled error norm.
+  function dopriStep(f, y, h) {
+    const k = [f(y)];
+    for (let s = 1; s < 7; s += 1) {
+      const ys = y.map((q, i) => q + h * DP_A[s].reduce((sum, aij, j) => sum + aij * k[j][i], 0));
+      k.push(f(ys));
+    }
+    const next = y.map((q, i) => q + h * DP_B.reduce((sum, b, j) => sum + b * k[j][i], 0));
+    let err = 0;
+    for (let i = 0; i < y.length; i += 1) {
+      const e = h * DP_E.reduce((sum, c, j) => sum + c * k[j][i], 0);
+      const scale = ATOL + RTOL * Math.max(Math.abs(y[i]), Math.abs(next[i]));
+      err = Math.max(err, Math.abs(e) / scale);
+    }
+    return { next, err };
+  }
+
+  // Integrates one geodesic from Hamilton's equations.
   function geodesic(s, startRadius) {
     const a = s.a;
     const rPlus = horizons(a).plus;
     const g = s.mode === "null" ? { a, E: 1, L: s.b, mu2: 0 } : { a, E: s.E, L: s.L, mu2: 1 };
-    const { R, dR } = potential(g);
+    const R = radialFunction(g);
+    const f = (y) => hamiltonRates(g, y);
 
     let r;
-    let v;
+    let pr;
     let phi;
     let bound = false;
     if (g.mu2 === 1 && g.E < 1) {
+      // Bound orbit: start at rest radially at the apoapsis (R = 0, so p_r = P/Δ = K/P).
       bound = true;
       r = outerTurningPoint(R, rPlus, g.E);
       if (r === null) return { points: [], fate: "forbidden" };
-      v = 0;
+      pr = ingoingMomentum(g, r, 0);
       phi = 0;
     } else {
       r = startRadius;
       if (R(r) < 0) return { points: [], fate: "far" };
-      v = -Math.sqrt(R(r));
+      pr = ingoingMomentum(g, r, R(r));
       // Place the start so that the initial velocity points along −x (horizontal, leftwards).
-      phi = Math.atan2(r * azimuthRate(g, r, v), -v);
+      const [dr, dphi] = f([r, 0, pr]);
+      phi = Math.atan2(r * dphi, -dr);
     }
 
-    const deriv = (y) => [y[1], 0.5 * dR(y[0]), azimuthRate(g, y[0], y[1])];
-    let y = [r, v, phi];
+    let y = [r, phi, pr];
     const points = [[r * Math.cos(phi), r * Math.sin(phi)]];
     const phi0 = phi;
     const escapeRadius = Math.max(startRadius, r) + 1;
+    const shell = -g.mu2 / 2;
+    let constraint = Math.abs(hamiltonian(g, r, pr) - shell);
     let rMin = r;
     let rMax = r;
     let heading = null;
     let turning = 0;
     const periapses = [];
     let fate = bound ? "bound" : "whirl";
+    let h = 1e-3 * r;
+    // Photons near b_c whirl around the unstable photon orbit; count those turns.
+    const rPhoton = g.mu2 === 0 ? photonOrbit(a, g.L >= 0 ? 1 : -1) : null;
+    let whirlTurns = 0;
 
     for (let step = 0; step < MAX_STEPS; step += 1) {
-      const [rr, vv] = y;
-      const rate = azimuthRate(g, rr, vv);
-      const ds = Math.max(0.004, 0.006 * rr);
-      const speed = Math.max(Math.hypot(vv, rr * rate), Math.sqrt(ds * Math.abs(0.5 * dR(rr))), 1e-9);
-      const h = ds / speed;
+      // Cap the step so that consecutive drawn points are at most ~3% of r apart.
+      const [dr, dphi] = f(y);
+      const speed = Math.hypot(dr, y[0] * dphi) || 1e-12;
+      h = Math.min(h, (0.03 * Math.max(y[0], 1)) / speed);
+      const { next, err } = dopriStep(f, y, h);
+      if (err > 1) {
+        h *= Math.max(0.2, 0.9 * Math.pow(err, -0.2));
+        continue;
+      }
+      const drNext = f(next)[0];
 
-      const k1 = deriv(y);
-      const k2 = deriv(y.map((q, i) => q + 0.5 * h * k1[i]));
-      const k3 = deriv(y.map((q, i) => q + 0.5 * h * k2[i]));
-      const k4 = deriv(y.map((q, i) => q + h * k3[i]));
-      const next = y.map((q, i) => q + (h / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
-
-      if (vv < 0 && next[1] >= 0) periapses.push(next[2]);
-
+      // Periapsis: dr/dλ changes sign from − to +. Locate it inside the step by regula falsi
+      // on the step length, so the periapsis advance is accurate to the integrator tolerance.
+      if (dr < 0 && drNext >= 0) {
+        let lo = 0;
+        let hi = h;
+        let fLo = dr;
+        let fHi = drNext;
+        let at = next;
+        for (let it = 0; it < 30 && hi - lo > 1e-13 * h; it += 1) {
+          const tau = lo + (hi - lo) * (fLo / (fLo - fHi));
+          at = dopriStep(f, y, tau).next;
+          const fm = f(at)[0];
+          if (Math.abs(fm) < 1e-14) break;
+          if (fm < 0) {
+            lo = tau;
+            fLo = fm;
+          } else {
+            hi = tau;
+            fHi = fm;
+          }
+        }
+        periapses.push(at[1]);
+      }
       if (next[0] <= rPlus) {
-        // Interpolate to the horizon crossing.
-        const t = (rr - rPlus) / (rr - next[0]);
-        const ph = y[2] + t * (next[2] - y[2]);
+        const t = (y[0] - rPlus) / (y[0] - next[0]);
+        const ph = y[1] + t * (next[1] - y[1]);
         points.push([rPlus * Math.cos(ph), rPlus * Math.sin(ph)]);
         fate = "captured";
         break;
       }
+
+      if (rPhoton !== null && Math.abs(next[0] - rPhoton) < 0.01 * rPhoton) whirlTurns += Math.abs(next[1] - y[1]) / (2 * Math.PI);
       y = next;
-      const x = y[0] * Math.cos(y[2]);
-      const yy = y[0] * Math.sin(y[2]);
+      constraint = Math.max(constraint, Math.abs(hamiltonian(g, y[0], y[2]) - shell));
+      const x = y[0] * Math.cos(y[1]);
+      const yy = y[0] * Math.sin(y[1]);
       const [px, py] = points[points.length - 1];
       const hd = Math.atan2(yy - py, x - px);
       if (heading !== null) {
@@ -177,14 +263,15 @@
       rMin = Math.min(rMin, y[0]);
       rMax = Math.max(rMax, y[0]);
 
-      if (!bound && y[0] > escapeRadius && y[1] > 0) {
+      if (!bound && y[0] > escapeRadius && drNext > 0) {
         fate = "escaped";
         break;
       }
-      if (Math.abs(y[2] - phi0) > 2 * Math.PI * MAX_TURNS) {
+      if (Math.abs(y[1] - phi0) > 2 * Math.PI * MAX_TURNS) {
         fate = bound ? "bound" : "whirl";
         break;
       }
+      h *= Math.min(5, Math.max(0.2, 0.9 * Math.pow(Math.max(err, 1e-10), -0.2)));
     }
 
     let advance = null;
@@ -192,7 +279,7 @@
       const dphi = Math.abs(periapses[1] - periapses[0]);
       advance = ((dphi - 2 * Math.PI) * 180) / Math.PI;
     }
-    return { points, fate, bound, rMin, rMax, deflection: (Math.abs(turning) * 180) / Math.PI, advance };
+    return { points, fate, bound, rMin, rMax, deflection: (Math.abs(turning) * 180) / Math.PI, advance, constraint, whirlTurns, rPhoton };
   }
 
   // ------------------------------------------------------------ drawing
@@ -470,6 +557,11 @@
       default:
         msg = "The orbit stays outside the plotted region.";
     }
+    if (result.whirlTurns >= 1 && (result.fate === "captured" || result.fate === "escaped")) {
+      const end = result.fate === "captured" ? "crosses the event horizon r₊" : `escapes (deflection ${fmt(result.deflection, 1)}°)`;
+      msg = `${who} whirls ${fmt(result.whirlTurns, 1)} turns around the photon orbit r = ${fmt(result.rPhoton, 3)} M, then ${end}.`;
+    }
+    if (Number.isFinite(result.constraint)) msg += ` Hamiltonian constraint kept to |H + μ²/2| ≤ ${result.constraint.toExponential(0)}.`;
     $("kerr-status").textContent = msg;
     canvas.setAttribute("aria-label", `Kerr black hole with a/M = ${fmt(state.a)}. ${msg}`);
   }
@@ -559,5 +651,5 @@
   setMode(state.mode);
 
   // Exposed for checking numbers from the browser console.
-  window.Kerr = { horizons, photonOrbit, criticalImpact, isco, circularOrbit, geodesic, state };
+  window.Kerr = { horizons, photonOrbit, criticalImpact, isco, circularOrbit, hamiltonian, hamiltonRates, geodesic, state };
 })();
