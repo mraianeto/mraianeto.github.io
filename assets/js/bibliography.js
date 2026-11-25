@@ -18,7 +18,8 @@
   const CUSTOM_FIELDS = new Set([
     "abbr", "abstract", "additional_info", "altmetric", "annotation", "arxiv", "award", "award_name",
     "bibtex_show", "blog", "code", "dimensions", "google_scholar_id", "hal", "html", "inspirehep_id",
-    "pdf", "pmid", "poster", "preview", "preview_dark", "selected", "slides", "supp", "video", "website",
+    "pdf", "pmid", "poster", "preview", "preview_dark", "selected", "slides", "slides_open", "slides_versions",
+    "supp", "video", "website",
   ]);
 
   const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -234,6 +235,37 @@
     return `<figure><picture>${dark ? img(light, "only-light") + img(dark, "only-dark") : img(light, "")}</picture></figure>`;
   }
 
+  // slides_versions = {label | file ; label | file ; ...} -> [{ label, href }]
+  function slideVersions(entry) {
+    return raw(entry, "slides_versions")
+      .split(";")
+      .map((item) => item.split("|").map((part) => part.trim()))
+      .filter((parts) => parts.length === 2 && parts[0] && parts[1])
+      .map(([label, file]) => ({ label: latexToText(label), href: url(file, PDF_DIR) }));
+  }
+
+  // One "Slides" box per talk: version picker, PDF reader and download/open links for the chosen version.
+  function slidesHtml(entry, versions) {
+    const open = isTrue(entry, "slides_open");
+    const first = versions[0];
+    const title = esc(text(entry, "title"));
+    const picker = versions
+      .map(
+        (v, k) =>
+          `<button type="button" data-href="${esc(v.href)}" aria-pressed="${k === 0}"${k === 0 ? ' class="active"' : ""}>${esc(v.label)}</button>`,
+      )
+      .join("");
+    return `<div class="col-12 slides-box${open ? " open" : ""}" id="${esc(entry.key)}-slides">
+      <div class="slides-versions" role="group" aria-label="Version of the slides">${picker}</div>
+      <div class="slides-viewer"><iframe title="Slides: ${title}" ${open ? "src" : "data-src"}="${esc(first.href)}#view=Fit&amp;zoom=page-fit"></iframe></div>
+      <div class="slides-actions">
+        <a class="btn btn-sm z-depth-0 slides-download" role="button" href="${esc(first.href)}" download><i class="fa-solid fa-download"></i> Download PDF</a>
+        <a class="btn btn-sm z-depth-0 slides-newtab" role="button" href="${esc(first.href)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-up-right-from-square"></i> Open in a new tab</a>
+        <span class="slides-current">${esc(first.label)}</span>
+      </div>
+    </div>`;
+  }
+
   function entryHtml(entry) {
     const abbr = text(entry, "abbr");
     const links = [];
@@ -245,6 +277,11 @@
     if (raw(entry, "pdf")) links.push(button("PDF", url(raw(entry, "pdf"), PDF_DIR)));
     for (const [field, label] of [["supp", "Supp"], ["code", "Code"], ["poster", "Poster"], ["slides", "Slides"], ["website", "Website"]]) {
       if (raw(entry, field)) links.push(button(label, url(raw(entry, field), PDF_DIR)));
+    }
+    const versions = slideVersions(entry);
+    if (versions.length) {
+      const open = isTrue(entry, "slides_open");
+      links.push(`<a class="slidesbtn btn btn-sm z-depth-0" role="button" href="#${esc(entry.key)}-slides" aria-controls="${esc(entry.key)}-slides" aria-expanded="${open}">Slides</a>`);
     }
     const note = text(entry, "note");
 
@@ -263,6 +300,7 @@
       ${raw(entry, "abstract") ? `<div class="abstract hidden"><p>${esc(text(entry, "abstract"))}</p></div>` : ""}
       ${isTrue(entry, "bibtex_show") ? `<div class="bibtex hidden"><figure class="highlight"><pre><code class="language-bibtex">${esc(bibtexSource(entry))}</code></pre></figure></div>` : ""}
     </div>
+    ${versions.length ? slidesHtml(entry, versions) : ""}
   </div>
 </li>`;
   }
@@ -311,6 +349,34 @@
       container.innerHTML = `<p class="text-muted">Could not load the publication list (${esc(error.message)}).</p>`;
     }
   }
+
+  // Slides boxes: the "Slides" button opens/closes the box; a version button shows that PDF in the
+  // reader and points the download and new-tab links at it.
+  document.addEventListener("click", (event) => {
+    const toggle = event.target.closest("a.slidesbtn");
+    if (toggle) {
+      event.preventDefault();
+      const box = document.getElementById(toggle.getAttribute("aria-controls"));
+      if (!box) return;
+      const open = box.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", String(open));
+      const frame = box.querySelector("iframe");
+      if (open && frame && !frame.getAttribute("src")) frame.setAttribute("src", frame.dataset.src);
+      return;
+    }
+    const choice = event.target.closest(".slides-versions button");
+    if (!choice) return;
+    const box = choice.closest(".slides-box");
+    box.querySelectorAll(".slides-versions button").forEach((b) => {
+      b.classList.toggle("active", b === choice);
+      b.setAttribute("aria-pressed", String(b === choice));
+    });
+    const href = choice.dataset.href;
+    box.querySelector("iframe").setAttribute("src", `${href}#view=Fit&zoom=page-fit`);
+    box.querySelector(".slides-download").setAttribute("href", href);
+    box.querySelector(".slides-newtab").setAttribute("href", href);
+    box.querySelector(".slides-current").textContent = choice.textContent;
+  });
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("[data-bib]").forEach(load);

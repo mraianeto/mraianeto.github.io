@@ -4,8 +4,11 @@
     "type": "map",
     "contents": [
       { "name": "Full Name", "value": "Mário Raia Neto" },
-      { "name": "Position", "value": "Physicist · MSc student in Physics" },
-      { "name": "Affiliation", "value": "Department of Physics, Federal University of ABC (UFABC)" },
+      { "name": "Position", "value": "Physicist · MSc Student of Theoretical Physics (UFABC) · MSc Student of Astrophysics (UNICID)" },
+      {
+        "name": "Affiliation",
+        "value": "Federal University of ABC (UFABC)<br>Núcleo de Astrofísica (NAT), University of the City of São Paulo (UNICID)"
+      },
       { "name": "Location", "value": "São Paulo, Brazil" },
       {
         "name": "Email",
@@ -26,11 +29,17 @@
     "type": "time_table",
     "contents": [
       {
-        "title": "Master in Physics",
+        "title": "Master in Theoretical Physics",
         "institution": "Federal University of ABC (UFABC), São Paulo, Brazil",
         "department": "Department of Physics",
         "year": "2025 – present",
         "description": ["Advisor: Prof. Maurício Richartz"]
+      },
+      {
+        "title": "Master in Astrophysics",
+        "institution": "University of the City of São Paulo (UNICID), São Paulo, Brazil",
+        "department": "Núcleo de Astrofísica (NAT)",
+        "year": "2025 – present"
       },
       {
         "title": "Licenciatura in Physics",
@@ -49,8 +58,15 @@
   {
     "title": "Distinguished Courses",
     "type": "time_table",
-    "intro": "Full-semester subjects beyond the mandatory UFSCar BSc curriculum, taken during the BSc. In some of them I was required to produce reports, deliver one-time lectures, or give presentations in order to be graded.",
+    "intro": "Full-semester subjects beyond the mandatory curricula of my degrees. In some of them I was required to produce reports, deliver one-time lectures, or give presentations in order to be graded.",
     "contents": [
+      {
+        "title": "Introducción a la Astrofísica de Agujeros Negros",
+        "institution": "Facultad de Ciencias Astronómicas y Geofísicas, Universidad Nacional de La Plata",
+        "year": "2026",
+        "location": "Argentina",
+        "description": ["Professors: Gustavo E. Romero and Florencia Vieyra"]
+      },
       {
         "title": "Numerical Simulations of Accretion Discs",
         "institution": "Nicolaus Copernicus Astronomical Center, Polish Academy of Sciences",
@@ -181,6 +197,15 @@
     "contents": [
       { "subheading": "Refereed, international" },
       {
+        "title": "Sensitivities of Black Hole Images from General Relativistic Magnetohydrodynamic Simulations",
+        "year": "2026",
+        "maindescription": "P. Naethe Motta, <u>M. Raia Neto</u>, C. Prather and A. Cárdenas-Avendaño. <em>The Astrophysical Journal</em> <b>1004</b>, 218 (2026).",
+        "linkitems": [
+          { "linkname": "DOI", "link": "https://doi.org/10.3847/1538-4357/ae733f" },
+          { "linkname": "PDF", "link": "/assets/pdf/sensitivities2026.pdf" }
+        ]
+      },
+      {
         "title": "A new solution for a generalized cosmological wormhole",
         "year": "2023",
         "maindescription": "D. Pérez and <u>M. Raia Neto</u>. <em>The European Physical Journal C</em> <b>83</b>, 1127 (2023).",
@@ -216,6 +241,10 @@
     "title": "Research Projects",
     "type": "time_table",
     "contents": [
+      {
+        "title": "Current research",
+        "maindescription": "The Penrose process in black holes immersed in external magnetic fields; MHD simulations of relativistic jets; GRMHD simulations of black hole accretion disks."
+      },
       {
         "title": "Relativistic Magnetohydrodynamics, the Blandford–Znajek Mechanism and an Introduction to Numerical Relativity",
         "year": "2024 – present",

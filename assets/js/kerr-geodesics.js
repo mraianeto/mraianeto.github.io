@@ -26,6 +26,7 @@
 
   const ZOOM_LEVELS = [4, 6, 8, 10, 12, 15, 20, 30, 50];
   const MAX_STEPS = 200000; // safety cap on Runge–Kutta steps per integration
+  const MAX_TURNS = 30; // the drawing stops after 30 turns in φ (orbits near a photon orbit can whirl for hundreds)
   const EPS_HORIZON = 1e-3; // (r_stop − r₊)/M  [epsilonHorizonte]
 
   // Default timelike orbit: bound, 5 M ≤ r ≤ 12 M at a = 0.9 (R(5) = R(12) = 0).
@@ -284,7 +285,7 @@
 
   // Integrates one geodesic from the event (t, r, θ, φ) with initial covector p0.
   // State y = [t, r, θ, φ, p_r, p_θ, τ, λ].                                   [integrarGeodesica]
-  function integrateGeodesic(M, a, c, p0, event, minoLimit, rEscape, epsHorizon, maxSpatialStep) {
+  function integrateGeodesic(M, a, c, p0, event, minoLimit, rEscape, epsHorizon, maxSpatialStep, maxPhi = Infinity) {
     const rStop = horizonRadius(M, a) + epsHorizon * M;
     const pt = -c.E;
     const pph = c.L;
@@ -306,6 +307,7 @@
     let s = 0;
     let h = MAX_STEP / 10;
     let stopped = false;
+    let turnCapped = false;
     for (let step = 0; step < MAX_STEPS && s < 1 && !stopped; step += 1) {
       const f0 = rhs(y);
       // Optional extra cap so drawn points are close together in the plane.
@@ -332,12 +334,16 @@
       s += h;
       samples.push(y);
       h *= Math.min(5, Math.max(0.2, 0.9 * Math.pow(Math.max(err, 1e-10), -0.2)));
+      if (Math.abs(y[3] - event[3]) > maxPhi) {
+        turnCapped = true;
+        break;
+      }
     }
 
     const rFinal = y[1];
     const state =
       rFinal <= rStop * (1 + 1e-7) ? "Horizonte" : rFinal >= rEscape * (1 - 1e-7) ? "Infinito" : "Fim do intervalo";
-    return { samples, state, rFinal, minoFinal: y[7], properTimeFinal: y[6], periapses, rStop };
+    return { samples, state, rFinal, minoFinal: y[7], properTimeFinal: y[6], periapses, rStop, turnCapped };
   }
 
   // Largest turning point above the horizon for bound (E < μ) orbits, or null.
@@ -403,11 +409,13 @@
 
     // Mino interval M λ = 20; as in the Wolfram tracker it is lengthened ×4 (up to 300/M)
     // while an unbound orbit has neither reached the horizon nor escaped.
+    // The integration also stops after MAX_TURNS turns in φ (turnCapped), which keeps redraws fast.
+    const maxPhi = 2 * Math.PI * MAX_TURNS;
     let limit = MINO_LENGTH;
-    let run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
-    while (!bound && run.state === "Fim do intervalo" && limit < 300) {
+    let run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep, maxPhi);
+    while (!bound && !run.turnCapped && run.state === "Fim do intervalo" && limit < 300) {
       limit *= 4;
-      run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep);
+      run = integrateGeodesic(M, a, constants, p0, event, limit, rEsc, EPS_HORIZON, spatialStep, maxPhi);
     }
 
     // Diagnostics: mass shell −g^{μν}p_μp_ν = μ², relative to the scale Σ|p_μ p_ν g^{μν}| as in
@@ -466,7 +474,7 @@
     const last = run.samples[run.samples.length - 1];
     return {
       points, fate, bound, rMin, rMax, advance, whirlTurns, rPhoton, constants, normError, thetaDeviation, equatorial,
-      deflection: (Math.abs(turning) * 180) / Math.PI, minoLimit: limit, wolframState: run.state,
+      deflection: (Math.abs(turning) * 180) / Math.PI, minoLimit: limit, wolframState: run.state, turnCapped: run.turnCapped,
       rStop: run.rStop, event, p0, tFinal: last[0],
     };
   }
@@ -596,16 +604,25 @@
       ctx.stroke();
       drawArrow(result.points, X, Y, half, pathColor);
     }
-    // Initial event x^μ(0), projected on the equatorial plane.
-    if (result.event) {
-      const [, r0, th0, ph0] = result.event;
-      ctx.fillStyle = pathColor;
-      ctx.strokeStyle = c.bg;
-      ctx.lineWidth = 2;
+    // Initial event x^μ(0) on the equator; hollow when no geodesic with these constants starts there.
+    {
+      const ph0 = (state.ph0 * Math.PI) / 180;
+      const px = X(state.r0 * Math.cos(ph0));
+      const py = Y(state.r0 * Math.sin(ph0));
+      ctx.setLineDash([]);
       ctx.beginPath();
-      ctx.arc(X(r0 * Math.sin(th0) * Math.cos(ph0)), Y(r0 * Math.sin(th0) * Math.sin(ph0)), 4.5, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
+      ctx.arc(px, py, 4.5, 0, 2 * Math.PI);
+      if (result.event) {
+        ctx.fillStyle = pathColor;
+        ctx.strokeStyle = c.bg;
+        ctx.lineWidth = 2;
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.strokeStyle = pathColor;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
     }
 
     drawSpinIndicator(c, a);
@@ -652,20 +669,25 @@
       ctx.fillText("a = 0", x - rad, y);
       return;
     }
-    // Canvas angles grow clockwise on screen, so moving counter-clockwise means decreasing
-    // angle: the arc runs from 2.1π down to 0.35π and the arrowhead sits at 0.35π.
-    const end = 0.35 * Math.PI;
+    // Canvas angles grow clockwise on screen (y points down), so counter-clockwise motion means
+    // decreasing angle. The arc runs counter-clockwise for three quarters of a turn, from just left
+    // of the bottom, past the right side and the top, to the left side; the arrowhead sits at that
+    // end and points along the counter-clockwise tangent (downwards on the left).
+    const start = 0.6 * Math.PI;
+    const end = start - 1.5 * Math.PI;
     ctx.beginPath();
-    ctx.arc(x, y, rad, end + 0.1 * Math.PI, 2.1 * Math.PI);
+    ctx.arc(x, y, rad, start, end, true);
     ctx.stroke();
-    const tx = Math.sin(end);
+    const tx = Math.sin(end); // d/d(−angle) of (cos, sin): the counter-clockwise tangent on screen
     const ty = -Math.cos(end);
+    const nx = -ty;
+    const ny = tx;
     const ex = x + rad * Math.cos(end);
     const ey = y + rad * Math.sin(end);
     ctx.beginPath();
-    ctx.moveTo(ex + 4 * tx, ey + 4 * ty);
-    ctx.lineTo(ex - 3 * tx - 4 * ty, ey - 3 * ty + 4 * tx);
-    ctx.lineTo(ex - 3 * tx + 4 * ty, ey - 3 * ty - 4 * tx);
+    ctx.moveTo(ex + 5 * tx, ey + 5 * ty);
+    ctx.lineTo(ex - 2 * tx + 3.5 * nx, ey - 2 * ty + 3.5 * ny);
+    ctx.lineTo(ex - 2 * tx - 3.5 * nx, ey - 2 * ty - 3.5 * ny);
     ctx.closePath();
     ctx.fill();
     ctx.fillText("spin", x + rad + 6, y);
@@ -717,7 +739,12 @@
         msg = `${who} escapes to infinity; its direction of motion turns by ${fmt(result.deflection, 1)}° and the closest approach is r = ${fmt(result.rMin, 2)} M.`;
         break;
       case "whirl":
-        msg = `${who} is still orbiting near r = ${fmt(result.rMin, 2)} M at the end of the Mino interval Mλ = ${fmt(result.minoLimit, 0)}.`;
+        msg = result.turnCapped
+          ? `${who} is still orbiting, ${fmt(result.rMin, 3)} M ≤ r ≤ ${fmt(result.rMax, 3)} M, after ${MAX_TURNS} turns, where the drawing stops.` +
+            (result.rPhoton !== null && result.rMax - result.rMin < 0.01 * result.rPhoton
+              ? ` This is the circular photon orbit r = ${fmt(result.rPhoton, 3)} M; it is unstable, so any perturbation makes the photon fall in or escape.`
+              : "")
+          : `${who} is still orbiting near r = ${fmt(result.rMin, 2)} M at the end of the Mino interval Mλ = ${fmt(result.minoLimit, 0)}.`;
         break;
       case "bound":
         msg =
@@ -728,7 +755,7 @@
         break;
       case "notallowed": {
         const roots = result.roots || [];
-        msg = `R(r₀) < 0: this E and L cannot be at r₀ = ${fmt(state.r0, 2)} M.` +
+        msg = `R(r₀) < 0: ${state.mode === "null" ? "a photon with this b" : "a particle with this E and L"} cannot be at r₀ = ${fmt(state.r0, 2)} M.` +
           (roots.length ? ` Turning points of R(r): ${roots.map((x) => fmt(x, 2)).join(", ")} M.` : "");
         break;
       }
@@ -799,7 +826,13 @@
   void setA;
 
   // Shows the controls of the current mode: elements carry data-for="null" or "timelike".
+  // Each mode keeps its own r0 (an ISCO start is usually a forbidden region for photons, and vice versa).
+  const savedR0 = { null: 6, timelike: state.r0 };
   function setMode(mode) {
+    if (mode !== state.mode) {
+      savedR0[state.mode] = state.r0;
+      setR0(savedR0[mode], null);
+    }
     state.mode = mode;
     document.querySelectorAll(".kerr-modes button").forEach((btn) => {
       const active = btn.dataset.mode === mode;
@@ -818,7 +851,10 @@
     btn.addEventListener("click", () => {
       const dir = btn.dataset.dir === "retro" ? -1 : 1;
       if (btn.dataset.preset === "critical") {
+        // Circular photon orbit: start on it with its critical impact parameter. It is unstable,
+        // so the photon whirls around it for a while and then falls in or escapes.
         setB(criticalImpact(state.a, dir), null);
+        setR0(photonOrbit(state.a, dir), null);
       } else {
         // Circular orbit: start on the ISCO itself, where this E and L are allowed.
         const rIsco = isco(state.a, dir);

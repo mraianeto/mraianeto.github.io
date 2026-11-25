@@ -9,7 +9,7 @@ It looks like the [al-folio](https://github.com/alshedivat/al-folio) Jekyll them
 ```
 index.html                    about page: bio, news, selected publications, "Fun: Kerr Geodesics"
 publications/index.html       publications, rendered from assets/bibliography/papers.bib
-studies/index.html            reports and notes, rendered from assets/bibliography/studies.bib
+studies/index.html            reports, notes and talks, rendered from assets/bibliography/studies.bib
 cv/index.html                 CV, rendered from assets/json/cv.json
 404.html                      "page not found" + redirects from the old addresses (/cv.html, /assets/cv.pdf, ...)
 assets/
@@ -19,12 +19,13 @@ assets/
   css/main.css                al-folio styles ported to plain CSS (+ the Kerr widget)
   js/theme.js                 light / dark / system theme toggle
   js/common.js                mobile menu, ABS/BIB buttons, footer year
-  js/bibliography.js          BibTeX -> al-folio publication list
+  js/bibliography.js          BibTeX -> al-folio publication list (+ the "Slides" box of talks)
   js/cv.js                    cv.json -> al-folio CV cards
   js/kerr-geodesics.js        Kerr geodesic widget
   img/                        profile photo, favicon, figures
   img/publication_preview/    thumbnails for publications
   pdf/                        CV and paper PDFs
+  pdf/slides/                 slide decks (one talk, several versions: see slides_versions below)
   fonts/                      K22 Gadget (currently unused)
 ```
 
@@ -35,6 +36,12 @@ Bootstrap 4.6.2, MDB 4.20.0, Font Awesome 6.5.2, Academicons 1.9.4 and MathJax 3
 - **News:** in `index.html`, copy a `<tr>` in the news table to the top and change the date and text.
 - **New paper:** add a BibTeX entry to `assets/bibliography/papers.bib`. The comment at the top of that file lists the extra fields (`abbr`, `abstract`, `arxiv`, `pdf`, `preview`, `bibtex_show`, `selected`, ...). Put the PDF in `assets/pdf/` and the thumbnail in `assets/img/publication_preview/`. `selected = {true}` also shows it on the about page.
 - **New report / study:** same, in `assets/bibliography/studies.bib`.
+- **Talk with several versions of the slides:** in `studies.bib`, give the entry
+  `slides_versions = {Full deck, 66 pages | slides/full.pdf ; 30 minutes, 34 pages | slides/30.pdf}`
+  (files in `assets/pdf/`). The entry gets a **Slides** button and a box with a version picker, a PDF
+  reader and Download / Open-in-a-new-tab links for the chosen version; the first version is shown first,
+  and `slides_open = {true}` opens the box when the page loads. The seminar decks come from
+  `~/Desktop/AccretionDisksRadiativePresentation/presentation/00sstyle/00style_ipole/presentation_00style_white_ipole*.pdf`.
 - **CV:** edit `assets/json/cv.json`, and replace `assets/pdf/cv.pdf` with the new PDF. Section types are `map`, `time_table`, `list` and `nested_list` (as in al-folio); strings may contain HTML. JSON does not allow trailing commas.
 - **Bio, photo, links:** in `index.html`. The navbar and footer are repeated in each page, so a new menu item has to be added to all five HTML files.
 - **Colours:** the `:root` (light) and `html[data-theme="dark"]` blocks at the top of `assets/css/main.css`. Both themes use al-folio's cyan `#2698ba` as the accent colour.

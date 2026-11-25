@@ -1,5 +1,27 @@
 % Reports, course projects and study notes shown on /studies/.
-% Same format as papers.bib (see the field list at the top of that file).
+% Same format as papers.bib (see the field list at the top of that file), plus:
+%   slides_versions  several PDFs of one talk, "label | file ; label | file ; ...". The entry gets a
+%                    "Slides" box with a version picker, a PDF reader and a download button; the first
+%                    version is shown first. Files are in /assets/pdf/ (or full URLs).
+%   slides_open      {true} opens the "Slides" box when the page loads
+
+@misc{raia2026relativistic,
+  abbr = {Seminar},
+  title = {Relativistic Corrections in Radiative Transfer of Black Hole Accretion Disks},
+  author = {Raia Neto, M{\'a}rio},
+  howpublished = {Seminar, MSc course Radiative Processes (Prof. Anderson Caproni), N{\'u}cleo de Astrof{\'i}sica, University of the City of S{\~a}o Paulo (UNICID)},
+  year = {2026},
+  month = nov,
+  note = {Every ray-traced image in the slides was computed with ipole (Mo{\'s}cibrodzka \& Gammie 2018).},
+  slides_versions = {Full deck, 66 pages | slides/relativistic-disks-full.pdf ;
+                     30-minute seminar, 34 pages | slides/relativistic-disks-30.pdf ;
+                     25 minutes, 29 pages | slides/relativistic-disks-25.pdf ;
+                     20 minutes, 24 pages | slides/relativistic-disks-20.pdf ;
+                     15 minutes, 18 pages | slides/relativistic-disks-15.pdf},
+  slides_open = {true},
+  preview = {relativistic_disks_ipole.png},
+  abstract = {How special and general relativity change the light we receive from a geometrically thin, optically thick accretion disk around a black hole. Starting from Newtonian radiative transfer, the talk adds, one at a time, Doppler shift and beaming, gravitational redshift and light bending in the Kerr spacetime, and shows their consequences: the inner edge at the ISCO, the dependence of disk images and spectra on spin and inclination, and the broad, skewed Fe K-alpha line. The practical application is the polarized general-relativistic radiative transfer code ipole (Mo{\'s}cibrodzka \& Gammie 2018): its covariant transfer scheme, its tests, and our own disk and RIAF images.}
+}
 
 @techreport{raia2025madtopologies,
   abbr = {CAMK},

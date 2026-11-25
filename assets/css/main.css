@@ -199,6 +199,15 @@ html[data-theme="dark"] table {
   color: #fff;
 }
 
+/* Running text is justified (bio, notes, CV descriptions, abstracts). */
+.post article p,
+.cv .list-group-item div.ml-1,
+.cv .card-intro {
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
 .post-description {
   margin-bottom: 2rem;
   font-size: 0.875rem;
@@ -344,6 +353,7 @@ html[data-theme="dark"] table {
 .profile .more-info p {
   display: inline-block;
   margin: 0;
+  text-align: left;
 }
 
 .profile.float-right {
@@ -352,7 +362,7 @@ html[data-theme="dark"] table {
 
 @media (min-width: 576px) {
   .profile {
-    width: 30%;
+    width: 24%;
   }
 
   .profile .more-info p {
@@ -555,6 +565,74 @@ footer.fixed-bottom a:hover {
 
 .publications ol.bibliography li div.abstract.hidden.open {
   border-color: var(--global-text-color);
+}
+
+/* Slides box of a talk (field slides_versions): version picker, PDF reader, links. */
+.publications ol.bibliography li .slides-box {
+  display: none;
+  margin-top: 0.75rem;
+}
+
+.publications ol.bibliography li .slides-box.open {
+  display: block;
+}
+
+.slides-versions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.slides-versions button,
+.publications ol.bibliography li .slides-actions a.btn {
+  color: var(--global-text-color);
+  background: transparent;
+  border: 1px solid var(--global-text-color);
+  border-radius: 0.125rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  padding: 0.25rem 0.9rem;
+  margin: 0;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.slides-versions button:hover,
+.publications ol.bibliography li .slides-actions a.btn:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  text-decoration: none;
+}
+
+.slides-versions button.active,
+.slides-versions button.active:hover {
+  background-color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  color: var(--global-hover-text-color);
+}
+
+.slides-viewer iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--global-divider-color);
+  border-radius: 0.25rem;
+  background-color: var(--global-card-bg-color);
+}
+
+.slides-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.slides-actions .slides-current {
+  font-size: 0.8rem;
+  color: var(--global-text-color-light);
 }
 
 /* ---------------------------------------------------------------------------
@@ -762,7 +840,6 @@ code {
   border-radius: 0.25rem;
   border: 1px solid var(--global-divider-color);
   background-color: var(--kerr-canvas-bg);
-  touch-action: none;
 }
 
 .kerr .kerr-zoom {
@@ -1019,5 +1096,106 @@ code {
   font-size: 0.75rem;
   color: var(--global-text-color-light);
   margin: 0.5rem 0 0;
-  text-align: left;
+}
+
+/* ---------------------------------------------------------------------------
+ * Accretion disk widget (about page). Wrapped in .kerr, so it shares the Kerr
+ * widget's card, sliders, number boxes, tables and notes.
+ * ------------------------------------------------------------------------- */
+
+.disk .disk-plot {
+  position: relative;
+}
+
+.disk canvas.disk-image,
+.disk canvas.disk-spec {
+  height: auto;
+}
+
+.disk canvas.disk-image {
+  aspect-ratio: 10 / 11;
+}
+
+.disk canvas.disk-spec {
+  aspect-ratio: 16 / 11;
+  margin-top: 0.25rem;
+}
+
+.disk .disk-seg,
+.disk .disk-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.disk .disk-seg[hidden],
+.disk .disk-presets[hidden] {
+  display: none;
+}
+
+.disk .disk-seg button,
+.disk .disk-presets button {
+  color: var(--global-text-color);
+  background: transparent;
+  border: 1px solid var(--global-text-color);
+  border-radius: 0.125rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  padding: 0.25rem 0.7rem;
+  cursor: pointer;
+}
+
+.disk .disk-seg button:hover,
+.disk .disk-presets button:hover {
+  color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+}
+
+.disk .disk-seg button.active,
+.disk .disk-seg button.active:hover {
+  background-color: var(--global-theme-color);
+  border-color: var(--global-theme-color);
+  color: var(--global-hover-text-color);
+}
+
+.disk table.kerr-radii th[scope="row"] {
+  white-space: normal;
+}
+
+.disk .disk-tip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  max-width: 260px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--global-text-color);
+  background-color: var(--global-card-bg-color);
+  border: 1px solid var(--global-divider-color);
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-variant-numeric: tabular-nums;
+}
+
+.disk .disk-tip[hidden] {
+  display: none;
+}
+
+.disk .tip-swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 0;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+
+.disk .tip-swatch.solid {
+  border-top: 2px solid var(--global-theme-color);
+}
+
+.disk .tip-swatch.dashed {
+  border-top: 2px dashed var(--global-text-color-light);
 }
