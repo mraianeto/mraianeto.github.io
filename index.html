@@ -24,9 +24,9 @@
     <link rel="icon" type="image/png" href="/assets/img/favicon.png">
     <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
     <!-- Styles -->
-    <link rel="stylesheet" href="/assets/css/main.css?v=20261125">
+    <link rel="stylesheet" href="/assets/css/main.css?v=20261125b">
     <!-- Theme (must run before the page is painted) -->
-    <script src="/assets/js/theme.js?v=20261125"></script>
+    <script src="/assets/js/theme.js?v=20261125b"></script>
   </head>
 
   <body class="fixed-top-nav">
@@ -263,6 +263,100 @@
             </div>
           </div>
 
+          <!-- Accretion disks (assets/js/accretion-disk.js; maps from tools/make_disk_maps.py) -->
+          <h2 id="accretion-disks">Fun: Black Hole Accretion Disks</h2>
+          <p>A Novikov–Thorne thin disk around a rotating black hole, as a distant observer sees it. The images were pre-rendered with the general-relativistic ray tracer <a href="https://github.com/moscibrodzka/ipole" target="_blank" rel="noopener noreferrer">ipole</a>; change the spin, the inclination and the disk parameters below.</p>
+          <div class="kerr disk" id="disk-widget">
+            <div class="kerr-card">
+              <div class="kerr-stage disk-stage">
+                <div class="disk-plot">
+                  <canvas id="disk-canvas" class="disk-image" role="img" aria-label="ipole image of a thin accretion disk around a Kerr black hole"></canvas>
+                  <div class="disk-tip" id="disk-image-tip" hidden></div>
+                </div>
+                <p class="kerr-status" id="disk-status" aria-live="polite">Loading the ipole maps…</p>
+                <div class="disk-plot">
+                  <canvas id="disk-spectrum" class="disk-spec" role="img" aria-label="Spectrum of the disk image"></canvas>
+                  <div class="disk-tip" id="disk-spectrum-tip" hidden></div>
+                </div>
+              </div>
+
+              <div class="kerr-panel">
+                <div class="disk-seg" id="disk-show" role="group" aria-label="Quantity shown in the image">
+                  <button type="button" data-value="inu">intensity \(I_\nu\)</button>
+                  <button type="button" data-value="bol">bolometric</button>
+                  <button type="button" data-value="g">redshift \(g\)</button>
+                  <button type="button" data-value="r">radius \(r\)</button>
+                </div>
+                <div class="disk-seg" id="disk-scale" role="group" aria-label="Colour scale">
+                  <button type="button" data-value="lin">linear</button>
+                  <button type="button" data-value="log">log</button>
+                </div>
+
+                <p class="kerr-subhead">black hole and viewing angle (ipole grid)</p>
+                <div class="kerr-control">
+                  <label for="disk-ai"><span>spin \(a_*\)</span><input type="number" id="disk-ai-num" step="0.001" aria-label="spin a*"></label>
+                  <input type="range" id="disk-ai" min="0" max="8" step="1">
+                </div>
+                <div class="kerr-control">
+                  <label for="disk-ii"><span>inclination \(i\) (degrees)</span><input type="number" id="disk-ii-num" step="1" aria-label="inclination in degrees"></label>
+                  <input type="range" id="disk-ii" min="0" max="6" step="1">
+                </div>
+
+                <p class="kerr-subhead">disk</p>
+                <div class="kerr-control">
+                  <label for="disk-logM"><span>mass \(M/M_\odot\)</span><input type="number" id="disk-logM-num" step="any" aria-label="black hole mass in solar masses"></label>
+                  <input type="range" id="disk-logM" min="0.5" max="10" step="0.01">
+                </div>
+                <div class="kerr-control">
+                  <label for="disk-logMdot"><span>accretion rate \(\dot M/\dot M_{\rm Edd}\)</span><input type="number" id="disk-logMdot-num" step="any" aria-label="accretion rate in Eddington units"></label>
+                  <input type="range" id="disk-logMdot" min="-3" max="0" step="0.01">
+                </div>
+                <div class="kerr-control">
+                  <label for="disk-fcol"><span>colour correction \(f_{\rm col}\)</span><input type="number" id="disk-fcol-num" min="1" max="2.5" step="0.01" aria-label="colour correction factor"></label>
+                  <input type="range" id="disk-fcol" min="1" max="2.5" step="0.01">
+                </div>
+                <div class="disk-seg" id="disk-limb" role="group" aria-label="Limb darkening">
+                  <button type="button" data-value="0">isotropic</button>
+                  <button type="button" data-value="1">limb-darkened</button>
+                </div>
+
+                <p class="kerr-subhead">observation</p>
+                <div class="kerr-control">
+                  <label for="disk-logE"><span>photon energy \(E = h\nu\) [keV]</span><input type="number" id="disk-logE-num" step="any" aria-label="photon energy in keV"></label>
+                  <input type="range" id="disk-logE" min="-3" max="1.5" step="0.01">
+                </div>
+                <div class="disk-presets">
+                  <button type="button" data-disk-preset="xrb">X-ray binary</button>
+                  <button type="button" data-disk-preset="agn">quasar</button>
+                  <button type="button" data-disk-preset="peak">\(E\) at the spectral peak</button>
+                </div>
+
+                <table class="kerr-radii disk-readouts">
+                  <tbody>
+                    <tr><th scope="row">event horizon \(r_+\) [\(GM/c^2\)]</th><td class="num" id="disk-rplus"></td></tr>
+                    <tr><th scope="row">inner edge \(r_{\rm ISCO}\) [\(GM/c^2\)]</th><td class="num" id="disk-risco"></td></tr>
+                    <tr><th scope="row">efficiency \(\eta = 1 - E_{\rm ISCO}\)</th><td class="num" id="disk-eta"></td></tr>
+                    <tr><th scope="row">\(M\) [\(M_\odot\)]; \(\dot M/\dot M_{\rm Edd}\)</th><td class="num"><span id="disk-M-label"></span>; <span id="disk-mdot-label"></span></td></tr>
+                    <tr><th scope="row">\(\dot M\) [\(M_\odot\,{\rm yr}^{-1}\)]</th><td class="num" id="disk-mdot"></td></tr>
+                    <tr><th scope="row">\(L = \eta \dot M c^2\) [erg s\(^{-1}\)]</th><td class="num" id="disk-lum"></td></tr>
+                    <tr><th scope="row">peak \(T\) [K] at \(r\) [\(GM/c^2\)]</th><td class="num" id="disk-tmax"></td></tr>
+                    <tr><th scope="row">peak colour temperature \(f_{\rm col}kT\)</th><td class="num" id="disk-ktc"></td></tr>
+                    <tr><th scope="row">photon energy \(E\)</th><td class="num" id="disk-E-label"></td></tr>
+                    <tr><th scope="row">redshift \(g\) in the image</th><td class="num" id="disk-grange"></td></tr>
+                  </tbody>
+                </table>
+
+                <p class="kerr-note">
+                  For each grid value of \(a_*\) and \(i\), ipole traced every pixel's photon back to the disk once and recorded where it left the disk (\(r\)), its redshift \(g = \nu_{\rm obs}/\nu_{\rm emit}\) (Doppler and gravitational, with light bending) and its emission angle.
+                  Your browser then applies ipole's own emission formula, \(I_\nu = g^3 f_{\rm col}^{-4} B_\nu(\nu/g,\, f_{\rm col}T(r))\), optionally times Chandrasekhar's limb darkening for an electron-scattering atmosphere, with the Novikov–Thorne temperature \(T(r)\) (zero torque at the ISCO).
+                  The disk runs from the ISCO to \(20\,GM/c^2\), the camera is at \(1000\,GM/c^2\), and \(\dot M_{\rm Edd} = L_{\rm Edd}/(0.1c^2)\); a thin disk is a good model only well below the Eddington rate.
+                  The spectrum is the apparent \(\nu L_\nu = 4\pi D^2\,\nu F_\nu\) of the image, next to the same disk in flat space with no Doppler shift, gravitational redshift or light bending.
+                  Checked against images computed directly by ipole: pixel intensities agree to a few \(10^{-5}\) (median; 99% of pixels within \(6\times10^{-4}\)) and total fluxes to \(10^{-6}\).
+                </p>
+              </div>
+            </div>
+          </div>
+
           <!-- Social -->
           <div class="social" id="contact">
             <div class="contact-icons">
@@ -286,9 +380,10 @@
     </footer>
 
     <!-- JavaScripts -->
-    <script src="/assets/js/common.js?v=20261125" defer></script>
-    <script src="/assets/js/bibliography.js?v=20261125" defer></script>
-    <script src="/assets/js/kerr-geodesics.js?v=20261125" defer></script>
+    <script src="/assets/js/common.js?v=20261125b" defer></script>
+    <script src="/assets/js/bibliography.js?v=20261125b" defer></script>
+    <script src="/assets/js/kerr-geodesics.js?v=20261125b" defer></script>
+    <script src="/assets/js/accretion-disk.js?v=20261125b" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous" async></script>
   </body>
 </html>

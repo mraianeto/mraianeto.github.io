@@ -763,7 +763,7 @@
         msg = "Choose r₀ outside the horizon (r₀ > r₊ + 10⁻³ M).";
         break;
       case "past":
-        msg = "No future-directed motion with this E and L at r₀.";
+        msg = `No future-directed motion ${state.mode === "null" ? "for a photon with this b" : "with this E and L"} at r₀.`;
         break;
       default:
         msg = "No orbit.";
