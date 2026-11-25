@@ -339,7 +339,7 @@
     try {
       const texts = await Promise.all(
         sources.map(async (src) => {
-          const response = await fetch(src);
+          const response = await fetch(src, { cache: "no-cache" });
           if (!response.ok) throw new Error(`${src}: HTTP ${response.status}`);
           return response.text();
         }),

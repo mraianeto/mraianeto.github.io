@@ -108,7 +108,7 @@
     const container = document.querySelector("[data-cv]");
     if (!container) return;
     try {
-      const response = await fetch(container.dataset.cv);
+      const response = await fetch(container.dataset.cv, { cache: "no-cache" });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       render(container, await response.json());
     } catch (error) {
